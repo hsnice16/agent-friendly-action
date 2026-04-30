@@ -2,7 +2,7 @@
 
 GitHub Action that posts a per-PR delta of the [Agent Friendly Code](https://github.com/hsnice16/agent-friendly-code) score — _"this PR drops your Claude Code score by 4.1 points because it removed CI config."_
 
-> **Version**: `v0.1.0` — plans live in [`tasks/0.1.0/`](./tasks/0.1.0/). Pin `@v0` to follow the latest 0.x release; pin a precise tag (`@v0.1.0`) if you want to opt out of automatic minor/patch updates. Tracking task in the parent project: [`tasks/0.5.0/02-score-diff-on-pr.md`](https://github.com/hsnice16/agent-friendly-code/blob/main/tasks/0.5.0/02-score-diff-on-pr.md).
+> **Version**: `v0.1.1` — plans for the initial cut live in [`tasks/0.1.0/`](./tasks/0.1.0/). Pin `@v0` to follow the latest 0.x release; pin a precise tag (`@v0.1.1`) if you want to opt out of automatic minor/patch updates. Tracking task in the parent project: [`tasks/0.5.0/02-score-diff-on-pr.md`](https://github.com/hsnice16/agent-friendly-code/blob/main/tasks/0.5.0/02-score-diff-on-pr.md).
 
 ## What it does
 
@@ -61,6 +61,14 @@ Two reasons:
 ## Self-contained
 
 The scorer is bundled into `dist/` via `@vercel/ncc`. The action does not call the [Agent Friendly Code](https://github.com/hsnice16/agent-friendly-code) web app at runtime — weights and signal logic ship inside the bundle. If the web app goes offline tomorrow, this action keeps producing PR comments unchanged.
+
+## Want this in your editor too?
+
+The [`agent-friendly-skill`](https://github.com/hsnice16/agent-friendly-skill) sibling vendors the same scorer for your editor. Profiles the same 8 agents this action does (Claude Code, Cursor, Devin, GPT-5 Codex, Gemini CLI, Aider, OpenHands, Pi); installs into any [`vercel-labs/skills`](https://github.com/vercel-labs/skills)-compatible agent. Recommendation is score-driven — the skill picks the highest-scoring profile as the best fit and tells you which model class to switch to; you do the actual switch.
+
+```bash
+npx skills add hsnice16/agent-friendly-skill
+```
 
 ## Sponsor
 

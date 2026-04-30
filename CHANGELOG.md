@@ -6,7 +6,11 @@ This file is the consumer-facing log: it records what changed in each release of
 
 What does **not** belong here: pure CI / build / lint / test plumbing, dev-only refactors, or doc-only edits that don't change behaviour. Those stay in commit messages and PR descriptions.
 
-## [Unreleased]
+## [0.1.1] - 2026-05-01
+
+### Changed
+
+- `size` signal now respects the repo's `.gitignore` in addition to the existing baseline (`node_modules`, `.git`, `vendor`, `target`, `dist`, `build`, `.next`). Repos with operational dirs that are gitignored (clone workspaces, build caches, generated data) no longer have those files counted toward the "manageable size" bucket — the score now matches what the dashboard sees on a fresh shallow clone. New runtime dep: `ignore@7.0.5`.
 
 ## [0.1.0] - 2026-04-30
 
@@ -19,5 +23,5 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 - LICENSE file (MIT) at the repo root — required for Marketplace publish.
 - `tasks/0.1.0/` version plans documenting the v0.1.0 cut: vendor scorer, action runtime, PR comment, CI + smoke, Marketplace publish.
 
-[Unreleased]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.0...HEAD
+[0.1.1]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/hsnice16/agent-friendly-action/releases/tag/v0.1.0

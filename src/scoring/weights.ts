@@ -213,8 +213,3 @@ export const MODELS: ModelProfile[] = [
     },
   },
 ];
-
-export const MODEL_BY_ID: Record<ModelId, ModelProfile> = Object.fromEntries(MODELS.map((m) => [m.id, m])) as Record<
-  ModelId,
-  ModelProfile
->;

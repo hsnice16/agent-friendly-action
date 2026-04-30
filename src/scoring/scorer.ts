@@ -22,10 +22,7 @@ export type RepoScore = {
   modelScores: ModelScore[];
 };
 
-function scoreOneModel(
-  profile: ModelProfile,
-  signals: SignalResult[],
-): ModelScore {
+function scoreOneModel(profile: ModelProfile, signals: SignalResult[]): ModelScore {
   let earned = 0;
   const contributions: ModelScore["contributions"] = [];
   const weightSum = Object.values(profile.weights).reduce((a, b) => a + b, 0);
@@ -56,10 +53,7 @@ function scoreOneModel(
 // the scanner's local filesystem layout. Signals are written individually —
 // some already return relative paths, some don't — normalising once here is
 // the reliable belt-and-braces.
-function toRelative(
-  repoPath: string,
-  p: string | undefined,
-): string | undefined {
+function toRelative(repoPath: string, p: string | undefined): string | undefined {
   if (!p) {
     return p;
   }
@@ -68,10 +62,7 @@ function toRelative(
   return rel.startsWith("..") ? p : rel || ".";
 }
 
-export function scoreRepo(
-  repoPath: string,
-  models: ModelProfile[] = MODELS,
-): RepoScore {
+export function scoreRepo(repoPath: string, models: ModelProfile[] = MODELS): RepoScore {
   const rawSignals = runAllSignals(repoPath);
   const signals = rawSignals.map((s) => ({
     ...s,
@@ -83,10 +74,7 @@ export function scoreRepo(
   const overall =
     modelScores.length === 0
       ? 0
-      : Math.round(
-          (modelScores.reduce((a, b) => a + b.score, 0) / modelScores.length) *
-            10,
-        ) / 10;
+      : Math.round((modelScores.reduce((a, b) => a + b.score, 0) / modelScores.length) * 10) / 10;
 
   return { signals, modelScores, overall };
 }
@@ -109,8 +97,7 @@ export function topImprovements(
     return [];
   }
 
-  const weightSum =
-    Object.values(profile.weights).reduce((a, b) => a + b, 0) || 1;
+  const weightSum = Object.values(profile.weights).reduce((a, b) => a + b, 0) || 1;
 
   return signals
     .map((s) => {

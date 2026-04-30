@@ -1,6 +1,6 @@
 {
   "name": "agent-friendly-action",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "GitHub Action that comments a per-PR Agent Friendly Code score delta.",
   "license": "MIT",
@@ -18,7 +18,8 @@
   },
   "dependencies": {
     "@actions/core": "1.11.1",
-    "@actions/github": "6.0.1"
+    "@actions/github": "6.0.1",
+    "ignore": "7.0.5"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.12",

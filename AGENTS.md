@@ -6,7 +6,7 @@ Instructions for AI coding agents working on `agent-friendly-action`.
 
 A GitHub Action — published on the GitHub Marketplace — that posts a per-PR delta of the [Agent Friendly Code](https://github.com/hsnice16/agent-friendly-code) score on every pull request. Self-contained: the scorer is bundled into `dist/` so the action keeps working independently of the web app.
 
-Companion to the [agent-friendly-code](https://github.com/hsnice16/agent-friendly-code) web app. The action is read-only (PR comments only); the web app is the source of truth for score history and the public dashboard.
+Companion to the [agent-friendly-code](https://github.com/hsnice16/agent-friendly-code) web app and to the [agent-friendly-skill](https://github.com/hsnice16/agent-friendly-skill) sibling — both vendor the same scorer, so a change in any one needs to be mirrored to the others. The action is read-only (PR comments only); the web app is the source of truth for score history, the public dashboard, and the canonical scorer; the skill is the local, in-editor counterpart.
 
 ## Stack
 
@@ -85,9 +85,16 @@ The action must keep working with no network access to the [agent-friendly-code]
 
 `src/scoring/` is a vendored copy of `lib/scoring/` from the upstream [`agent-friendly-code`](https://github.com/hsnice16/agent-friendly-code) repo. There is no automatic sync — when upstream changes a signal, weight, or `scorer.ts` shape, those changes are copied here by hand and logged under `## [Unreleased]` in `CHANGELOG.md`.
 
-Upstream's [`AGENTS.md`](https://github.com/hsnice16/agent-friendly-code/blob/main/AGENTS.md) (under "Sibling repos") owns the propagation rule — agents working over there are instructed to mirror their scorer changes into this repo. If you find drift, the upstream is the source of truth for signal logic and weight values.
+Upstream's [`AGENTS.md`](https://github.com/hsnice16/agent-friendly-code/blob/main/AGENTS.md) (under "Sibling repos") owns the propagation rule — agents working over there are instructed to mirror their scorer changes into this repo **and** into `agent-friendly-skill`. If you find drift, the upstream is the source of truth — **except** for the deliberate prunes listed below.
 
-Extracting the scorer to a standalone npm package (`agent-friendly-scorer`) is on the upstream's `1.0.0/03` benchmark-harness task. When that lands, this repo will install the package instead of vendoring, and the sync rule disappears.
+**Local prunes from upstream** (intentional, do not re-add on sync):
+
+- `src/constants/scoring.ts` — only `SCORE_THRESHOLD_MID`, `SCORE_THRESHOLD_GOOD`, and `DEFAULT_SUGGESTION_LIMIT` are kept. Upstream's `LEADERBOARD_PAGE_SIZE`, `LEADERBOARD_PAGE_SIZE_MOBILE`, and `STRENGTHS_GAPS_VISIBLE_LIMIT` are dashboard-UI-only and not used by the action.
+- `src/scoring/weights.ts` — `MODEL_BY_ID` (a `Record<ModelId, ModelProfile>`) is dropped; the action iterates `MODELS` and never indexes by id, and ncc does not tree-shake the eager `Object.fromEntries` call.
+
+When syncing upstream changes, copy the substantive change (new signal, weight tweak, scoring-logic edit) and re-apply these prunes on top.
+
+Extracting the scorer to a standalone npm package (`agent-friendly-scorer`) is on the upstream's `1.0.0/03` benchmark-harness task. When that lands, this repo will install the package instead of vendoring, and the sync rule plus these prunes both disappear.
 
 ## Security
 
