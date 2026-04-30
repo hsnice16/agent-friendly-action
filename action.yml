@@ -1,0 +1,23 @@
+name: Agent-friendly score diff
+description: Comment a per-PR delta of your repo's Agent Friendly Code score — see what your change does to agent-friendliness before you merge.
+author: hsnice16
+
+branding:
+  icon: bar-chart-2
+  color: gray-dark
+
+inputs:
+  agents-badge-token:
+    description: Opt-in marker. The action exits silently when this is empty. Pass a non-empty string (e.g. via secrets) to enable the PR comment.
+    required: true
+  github-token:
+    description: Token used to post or edit the PR comment. Defaults to the workflow's built-in GITHUB_TOKEN.
+    required: false
+    default: ${{ github.token }}
+  base-ref:
+    description: Override the PR base ref. Leave unset to use the event's base.
+    required: false
+
+runs:
+  using: node20
+  main: dist/index.js

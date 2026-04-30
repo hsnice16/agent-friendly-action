@@ -1,0 +1,31 @@
+{
+  "name": "agent-friendly-action",
+  "version": "0.1.0",
+  "private": true,
+  "description": "GitHub Action that comments a per-PR Agent Friendly Code score delta.",
+  "license": "MIT",
+  "author": "Himanshu Singh (https://github.com/hsnice16)",
+  "engines": {
+    "node": ">=20.9.0"
+  },
+  "scripts": {
+    "build": "ncc build src/index.ts -o dist --source-map --license licenses.txt",
+    "format": "biome check --write",
+    "lint": "biome check",
+    "prepare-hooks": "lefthook install",
+    "test": "node --test --import tsx 'tests/**/*.test.ts'",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@actions/core": "1.11.1",
+    "@actions/github": "6.0.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.12",
+    "@types/node": "20.19.39",
+    "@vercel/ncc": "0.38.4",
+    "lefthook": "2.1.6",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3"
+  }
+}

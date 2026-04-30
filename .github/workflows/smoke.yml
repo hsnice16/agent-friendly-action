@@ -1,0 +1,21 @@
+name: Smoke
+
+on:
+  pull_request:
+
+jobs:
+  self-score:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run action against this PR
+        uses: ./
+        with:
+          agents-badge-token: smoke-test
