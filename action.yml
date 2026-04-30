@@ -1,5 +1,5 @@
 name: Agent-friendly score diff
-description: Comment a per-PR delta of your repo's Agent Friendly Code score — see what your change does to agent-friendliness before you merge.
+description: Comment a per-PR delta of your Agent Friendly Code score — see how your PR affects agent-friendliness before merge.
 author: hsnice16
 
 branding:
