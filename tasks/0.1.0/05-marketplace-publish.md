@@ -1,6 +1,6 @@
 # 05 · Marketplace publish
 
-**Status**: planned
+**Status**: done
 
 ## Goal
 

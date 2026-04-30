@@ -30092,7 +30092,6 @@ function changedSignals(baseSignals, headSignals) {
 }
 function formatDelta(n) {
     const rounded = n.toFixed(1);
-    // Catch deltas that round to zero too — e.g. 0.04 displays as "0.0", not "+0.0".
     if (rounded === "0.0" || rounded === "-0.0") {
         return "±0.0";
     }

@@ -13,7 +13,7 @@
     "format": "biome check --write",
     "lint": "biome check",
     "prepare-hooks": "lefthook install",
-    "test": "node --test --import tsx 'tests/**/*.test.ts'",
+    "test": "node --test --import tsx tests/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

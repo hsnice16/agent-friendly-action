@@ -1,6 +1,6 @@
 # 0.1.0 — first cut
 
-**Status**: in_progress
+**Status**: done
 
 The minimum lovable thing: a Marketplace-listable GitHub Action that drops a per-PR score-delta comment, runs entirely inside maintainer CI, and is independent of the upstream web app for its core function.
 
