@@ -2,7 +2,7 @@
 
 GitHub Action that posts a per-PR delta of the [Agent Friendly Code](https://github.com/hsnice16/agent-friendly-code) score — _"this PR drops your Claude Code score by 4.1 points because it removed CI config."_
 
-> **Version**: `v0.1.1` — plans for the initial cut live in [`tasks/0.1.0/`](./tasks/0.1.0/). Pin `@v0` to follow the latest 0.x release; pin a precise tag (`@v0.1.1`) if you want to opt out of automatic minor/patch updates. Tracking task in the parent project: [`tasks/0.5.0/02-score-diff-on-pr.md`](https://github.com/hsnice16/agent-friendly-code/blob/main/tasks/0.5.0/02-score-diff-on-pr.md).
+> **Version**: `v0.1.2` — per-release plans live in [`tasks/`](./tasks/) (one folder per version). Pin `@v0` to follow the latest 0.x release; pin a precise tag (`@v0.1.2`) if you want to opt out of automatic minor/patch updates. Tracking task in the parent project: [`tasks/0.5.0/02-score-diff-on-pr.md`](https://github.com/hsnice16/agent-friendly-code/blob/main/tasks/0.5.0/02-score-diff-on-pr.md).
 
 ## What it does
 

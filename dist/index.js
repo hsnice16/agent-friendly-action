@@ -31337,7 +31337,17 @@ exports.ci = {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.contributing = void 0;
 const helpers_1 = __nccwpck_require__(2742);
-const CANDIDATES = ["CONTRIBUTING.md", "CONTRIBUTING", ".github/CONTRIBUTING.md", "docs/CONTRIBUTING.md"];
+const CANDIDATES = [
+    "CONTRIBUTING.md",
+    "CONTRIBUTING.rst",
+    "CONTRIBUTING.adoc",
+    "CONTRIBUTING",
+    ".github/CONTRIBUTING.md",
+    ".github/CONTRIBUTING.rst",
+    "docs/CONTRIBUTING.md",
+    "docs/CONTRIBUTING.rst",
+    "docs/CONTRIBUTING.adoc",
+];
 exports.contributing = {
     id: "contributing",
     label: "CONTRIBUTING guide",
@@ -31429,6 +31439,7 @@ exports.cursorRules = {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.depsManifest = void 0;
+const node_fs_1 = __nccwpck_require__(3024);
 const helpers_1 = __nccwpck_require__(2742);
 const CANDIDATES = [
     "package.json",
@@ -31444,8 +31455,38 @@ const CANDIDATES = [
     "composer.json",
     "pubspec.yaml",
     "build.gradle",
+    "build.gradle.kts",
+    "build.sbt",
     "pom.xml",
+    "mix.exs",
+    "Package.swift",
+    "deps.edn",
+    "project.clj",
+    "stack.yaml",
+    "dune-project",
+    "rebar.config",
+    "shard.yml",
+    "build.zig",
+    "CMakeLists.txt",
+    "meson.build",
+    "conanfile.txt",
+    "conanfile.py",
+    "vcpkg.json",
 ];
+const GLOB_MANIFESTS = [/\.(csproj|fsproj|vbproj|sln)$/, /\.cabal$/, /\.nimble$/];
+function findGlobManifest(repo) {
+    try {
+        const entries = (0, node_fs_1.readdirSync)(repo);
+        for (const re of GLOB_MANIFESTS) {
+            const hit = entries.find((f) => re.test(f));
+            if (hit) {
+                return hit;
+            }
+        }
+    }
+    catch { }
+    return null;
+}
 exports.depsManifest = {
     id: "deps_manifest",
     label: "Dependency manifest",
@@ -31457,6 +31498,16 @@ exports.depsManifest = {
             return {
                 pass: 1,
                 matchedPath: m,
+                id: "deps_manifest",
+                detail: "Manifest present",
+                label: "Dependency manifest",
+            };
+        }
+        const glob = findGlobManifest(repo);
+        if (glob) {
+            return {
+                pass: 1,
+                matchedPath: glob,
                 id: "deps_manifest",
                 detail: "Manifest present",
                 label: "Dependency manifest",
@@ -31494,8 +31545,14 @@ const ARTIFACTS = [
     "Dockerfile",
     "docker-compose.yml",
     "compose.yml",
+    "compose.yaml",
     "justfile",
     "Taskfile.yml",
+    "tox.ini",
+    "noxfile.py",
+    "mvnw",
+    "gradlew",
+    "bin/setup",
 ];
 exports.devEnv = {
     id: "dev_env",
@@ -31836,6 +31893,30 @@ const CANDIDATES = [
     ".golangci.yaml",
     "biome.json",
     ".biome.json",
+    ".rubocop.yml",
+    ".standard.yml",
+    ".swiftlint.yml",
+    ".swiftformat",
+    ".swift-format",
+    "detekt.yml",
+    "config/detekt/detekt.yml",
+    ".scalafmt.conf",
+    "phpstan.neon",
+    "phpstan.neon.dist",
+    "psalm.xml",
+    "psalm.xml.dist",
+    ".php-cs-fixer.dist.php",
+    ".php-cs-fixer.php",
+    ".credo.exs",
+    ".formatter.exs",
+    "stylua.toml",
+    ".stylua.toml",
+    "checkstyle.xml",
+    "config/checkstyle/checkstyle.xml",
+    "analysis_options.yaml",
+    ".clang-format",
+    ".clang-tidy",
+    ".clj-kondo/config.edn",
 ];
 const PYPROJECT_RE = /\[tool\.(ruff|black|flake8|pylint|mypy)/;
 exports.linter = {
@@ -32142,8 +32223,8 @@ exports.tests = void 0;
 const node_fs_1 = __nccwpck_require__(3024);
 const node_path_1 = __nccwpck_require__(6760);
 const helpers_1 = __nccwpck_require__(2742);
-const DIRS = ["tests", "test", "__tests__", "spec", "specs"];
-const FILE_RE = /(^|\/)(.*\.test\.|.*\.spec\.|test_.*\.py$|.*_test\.go$|.*_test\.rs$)/;
+const DIRS = ["tests", "test", "__tests__", "spec", "specs", "Tests", "src/test"];
+const FILE_RE = /(^|\/)(.*\.test\.|.*\.spec\.|test_.*\.py$|.*_test\.go$|.*_test\.rs$|.*Test\.java$|.*Tests?\.kt$|.*_test\.exs$|.*_test\.dart$|.*Spec\.scala$|.*Test\.scala$)/;
 exports.tests = {
     id: "tests",
     label: "Test suite",
@@ -32196,11 +32277,45 @@ const node_path_1 = __nccwpck_require__(6760);
 const helpers_1 = __nccwpck_require__(2742);
 const CANDIDATES = ["tsconfig.json", "jsconfig.json", "mypy.ini", ".mypy.ini", "pyrightconfig.json"];
 const PYPROJECT_RE = /\[tool\.(mypy|pyright)/;
+const TYPED_LANG_FILES = [
+    { file: "Cargo.toml", lang: "Rust" },
+    { file: "go.mod", lang: "Go" },
+    { file: "pom.xml", lang: "Java" },
+    { file: "build.gradle", lang: "Java/Kotlin" },
+    { file: "build.gradle.kts", lang: "Java/Kotlin" },
+    { file: "build.sbt", lang: "Scala" },
+    { file: "Package.swift", lang: "Swift" },
+    { file: "global.json", lang: "C#" },
+    { file: "dune-project", lang: "OCaml" },
+    { file: "stack.yaml", lang: "Haskell" },
+    { file: "build.zig", lang: "Zig" },
+];
+const GLOB_TYPED = [
+    { re: /\.(csproj|fsproj|vbproj|sln)$/, lang: "C#" },
+    { re: /\.cabal$/, lang: "Haskell" },
+];
+function detectTypedLang(repo) {
+    for (const { file, lang } of TYPED_LANG_FILES) {
+        if ((0, node_fs_1.existsSync)((0, node_path_1.join)(repo, file))) {
+            return lang;
+        }
+    }
+    try {
+        const entries = (0, node_fs_1.readdirSync)(repo);
+        for (const { re, lang } of GLOB_TYPED) {
+            if (entries.some((f) => re.test(f))) {
+                return lang;
+            }
+        }
+    }
+    catch { }
+    return null;
+}
 exports.typeConfig = {
     id: "type_config",
     label: "Type configuration",
     description: "Static types help agents reason about call sites without running code.",
-    improveSuggestion: "Add a type config (tsconfig.json for JS/TS, mypy.ini or pyrightconfig.json for Python). Rust/Go are typed by default.",
+    improveSuggestion: "Add a type config (tsconfig.json for JS/TS, mypy.ini or pyrightconfig.json for Python). Rust/Go/JVM/Scala/Swift/C#/OCaml/Haskell/Zig are typed by default.",
     check: (repo) => {
         const m = (0, helpers_1.firstExisting)(repo, CANDIDATES);
         if (m) {
@@ -32222,12 +32337,13 @@ exports.typeConfig = {
                 detail: "Configured in pyproject.toml",
             };
         }
-        if ((0, node_fs_1.existsSync)((0, node_path_1.join)(repo, "Cargo.toml")) || (0, node_fs_1.existsSync)((0, node_path_1.join)(repo, "go.mod"))) {
+        const lang = detectTypedLang(repo);
+        if (lang) {
             return {
                 pass: 1,
                 id: "type_config",
                 label: "Type configuration",
-                detail: "Typed language (Rust/Go)",
+                detail: `Typed language (${lang})`,
             };
         }
         return {

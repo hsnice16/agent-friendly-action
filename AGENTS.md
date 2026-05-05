@@ -34,7 +34,9 @@ dist/                   # bundled output (committed — this is what consumers r
 tests/
   diff.test.ts
 tasks/
-  0.1.0/                # version plans (per-task files + README)
+  0.1.0/                # version plans — one folder per release. README-per-release, plus per-task files for multi-task releases.
+  0.1.1/                # single-purpose patch releases keep a README only.
+  0.1.2/
 CHANGELOG.md            # consumer-facing release log
 LICENSE                 # MIT
 ```
@@ -65,7 +67,7 @@ npm run lint            # biome check (read-only)
 > **Two kinds of tags, don't confuse them:**
 >
 > - **Precise** (e.g. `v0.1.0`) — immutable. Points at exactly one commit, forever.
-> - **Floating** (e.g. `v0`) — mutable. The number after `v` is the **major version**, not "release N". `v0` always points at the latest 0.x.y release; today that's `v0.1.0`, tomorrow it might be `v0.2.0`. Same way `actions/checkout@v4` works.
+> - **Floating** (e.g. `v0`) — mutable. The number after `v` is the **major version**, not "release N". `v0` always points at the latest 0.x.y release; today that's `v0.1.2`, tomorrow it might be `v0.2.0`. Same way `actions/checkout@v4` works.
 
 Semver tags with a major-version floating tag:
 
