@@ -1,6 +1,6 @@
 {
   "name": "agent-friendly-action",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "private": true,
   "description": "GitHub Action that comments a per-PR Agent Friendly Code score delta.",
   "license": "MIT",

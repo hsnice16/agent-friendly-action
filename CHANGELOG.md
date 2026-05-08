@@ -6,6 +6,12 @@ This file is the consumer-facing log: it records what changed in each release of
 
 What does **not** belong here: pure CI / build / lint / test plumbing, dev-only refactors, or doc-only edits that don't change behaviour. Those stay in commit messages and PR descriptions.
 
+## [0.1.3] - 2026-05-08
+
+### Changed
+
+- `tests` signal file regex now also recognises `*Test.php` (PHPUnit), `*_test.rb` / `*_spec.rb` (Minitest / RSpec), and `*Tests?.cs` (xUnit / NUnit / MSTest). Monorepos that nest tests in subdirectories (e.g. ASP.NET Core, Rails) now correctly hit the test signal even without a recognised root-level test directory.
+
 ## [0.1.2] - 2026-05-05
 
 ### Changed
@@ -35,6 +41,7 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 - LICENSE file (MIT) at the repo root — required for Marketplace publish.
 - `tasks/0.1.0/` version plans documenting the v0.1.0 cut: vendor scorer, action runtime, PR comment, CI + smoke, Marketplace publish.
 
+[0.1.3]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/hsnice16/agent-friendly-action/releases/tag/v0.1.0
