@@ -38,6 +38,7 @@ tasks/
   0.1.1/                # single-purpose patch releases keep a README only.
   0.1.2/
   0.1.3/
+  0.1.4/
 CHANGELOG.md            # consumer-facing release log
 LICENSE                 # MIT
 ```
@@ -68,7 +69,7 @@ npm run lint            # biome check (read-only)
 > **Two kinds of tags, don't confuse them:**
 >
 > - **Precise** (e.g. `v0.1.0`) — immutable. Points at exactly one commit, forever.
-> - **Floating** (e.g. `v0`) — mutable. The number after `v` is the **major version**, not "release N". `v0` always points at the latest 0.x.y release; today that's `v0.1.3`, tomorrow it might be `v0.2.0`. Same way `actions/checkout@v4` works.
+> - **Floating** (e.g. `v0`) — mutable. The number after `v` is the **major version**, not "release N". `v0` always points at the latest 0.x.y release; today that's `v0.1.4`, tomorrow it might be `v0.2.0`. Same way `actions/checkout@v4` works.
 
 Semver tags with a major-version floating tag:
 
