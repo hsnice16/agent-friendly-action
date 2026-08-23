@@ -8,6 +8,11 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 
 ## [Unreleased]
 
+### Fixed
+
+- Repo file lookups are now case-insensitive. Candidate paths previously had to match exactly, so a repo spelling its files `readme.md`, `Readme.md`, `license`, or `contributing.md` scored as though they were missing — on case-sensitive filesystems, which is where this action runs. Repos missing all three of README / LICENSE / CONTRIBUTING for this reason score up to 18 points higher now.
+- A single `Makefile` no longer counts as two dev-env artifacts, which could push `dev_env` from 0.7 to a full 1.0 on case-insensitive filesystems.
+
 ## [0.1.4] - 2026-07-21
 
 ### Added
