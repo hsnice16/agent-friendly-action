@@ -16,7 +16,7 @@ npm run format          # biome check --write (skips vendored src/scoring/ + src
 npm run lint            # biome check (read-only)
 ```
 
-Requires **Node ≥ 20.9.0** (matches `engines.node` in `package.json` and `runs.using: node20` in `action.yml`).
+Requires **Node ≥ 20.9.0** (`engines.node` in `package.json`). The published action runs on Node 24 (`runs.using: node24` in `action.yml`).
 
 ## Branch naming
 

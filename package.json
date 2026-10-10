@@ -1,8 +1,8 @@
 {
   "name": "agent-friendly-action",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "private": true,
-  "description": "GitHub Action that comments a per-PR Agent Friendly Code score delta.",
+  "description": "GitHub Action that comments on each pull request with how it changes the repo's Agent Friendly Code score.",
   "license": "MIT",
   "author": "Himanshu Singh (https://github.com/hsnice16)",
   "engines": {
@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.12",
-    "@types/node": "20.19.39",
+    "@types/node": "24.19.2",
     "@vercel/ncc": "0.38.4",
     "lefthook": "2.1.6",
     "tsx": "4.21.0",

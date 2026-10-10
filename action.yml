@@ -1,5 +1,5 @@
 name: Agent-friendly score diff
-description: Comment a per-PR delta of your Agent Friendly Code score — see how your PR affects agent-friendliness before merge.
+description: Comment on each pull request with how it changes your repo's score for AI coding agents.
 author: hsnice16
 
 branding:
@@ -19,5 +19,5 @@ inputs:
     required: false
 
 runs:
-  using: node20
+  using: node24
   main: dist/index.js

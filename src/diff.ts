@@ -13,9 +13,9 @@ export function renderDiffComment(base: RepoScore, head: RepoScore): string {
   lines.push(`**Overall**: ${base.overall.toFixed(1)} → ${head.overall.toFixed(1)} (${formatDelta(overallDelta)})`);
   lines.push("");
 
-  lines.push("### Per model");
+  lines.push("### Per agent");
   lines.push("");
-  lines.push("| Model | Base | Head | Δ |");
+  lines.push("| Agent | Base | Head | Δ |");
   lines.push("| --- | ---: | ---: | ---: |");
 
   for (const row of perModelRows(base.modelScores, head.modelScores)) {

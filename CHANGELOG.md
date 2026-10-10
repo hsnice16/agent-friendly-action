@@ -6,6 +6,18 @@ This file is the consumer-facing log: it records what changed in each release of
 
 What does **not** belong here: pure CI / build / lint / test plumbing, dev-only refactors, or doc-only edits that don't change behaviour. Those stay in commit messages and PR descriptions.
 
+## [Unreleased]
+
+## [0.1.6] - 2026-10-10
+
+### Changed
+
+- The AGENTS.md / CLAUDE.md check no longer passes on Cursor rule files (`.cursor/rules`, `.cursorrules`); the separate Cursor-rules check already covers them. A repo with only Cursor rules scores lower on this check for every agent, and a `.cursor/rules` directory no longer reads as an empty instructions file. Vendored from the upstream scorer.
+- Agent rationales and source links for Cursor, Devin, Kimi CLI, OpenHands and Pi follow the agents' current docs. No weights changed.
+- The PR comment's per-agent table is headed "Per agent" / "Agent" instead of "Per model" / "Model", matching the website; "model" is kept for the LLM.
+- Action runtime moved from `node20` to `node24`. GitHub has deprecated Node 20 for actions and was already forcing this action onto Node 24 with a warning annotation on every run; the annotation goes away. Self-hosted runners need a runner version that supports `node24` (v2.327.1 or later).
+- Marketplace `description` in `action.yml` reworded: "Comment on each pull request with how it changes your repo's score for AI coding agents."
+
 ## [0.1.5] - 2026-08-23
 
 ### Fixed
@@ -58,6 +70,7 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 - LICENSE file (MIT) at the repo root — required for Marketplace publish.
 - `tasks/0.1.0/` version plans documenting the v0.1.0 cut: vendor scorer, action runtime, PR comment, CI + smoke, Marketplace publish.
 
+[0.1.6]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.2...v0.1.3

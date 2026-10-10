@@ -6,11 +6,11 @@ Instructions for AI coding agents working on `agent-friendly-action`.
 
 A GitHub Action — published on the GitHub Marketplace — that posts a per-PR delta of the [Agent Friendly Code](https://github.com/hsnice16/agent-friendly-code) score on every pull request. Self-contained: the scorer is bundled into `dist/` so the action keeps working independently of the web app.
 
-Companion to the [agent-friendly-code](https://github.com/hsnice16/agent-friendly-code) web app and to the [agent-friendly-skill](https://github.com/hsnice16/agent-friendly-skill) sibling — both vendor the same scorer, so a change in any one needs to be mirrored to the others. The action is read-only (PR comments only); the web app is the source of truth for score history, the public dashboard, and the canonical scorer; the skill is the local, in-editor counterpart.
+Companion to the [agent-friendly-code](https://github.com/hsnice16/agent-friendly-code) web app and to the [agent-friendly-skill](https://github.com/hsnice16/agent-friendly-skill) sibling — both vendor the same scorer, so a change in any one needs to be mirrored to the others. The action is read-only (PR comments only); the web app is the source of truth for score history, the public leaderboard, and the canonical scorer; the skill is the local, in-editor counterpart.
 
 ## Stack
 
-- **Node 20** runtime — `action.yml` declares `runs.using: node20`. Local dev needs Node ≥ 20.9.0 (matches `engines.node`).
+- **Node 24** runtime — `action.yml` declares `runs.using: node24`. Local dev needs Node ≥ 20.9.0 (`engines.node`).
 - **TypeScript** — strict mode.
 - **`@actions/core`, `@actions/github`** — only first-party action utilities.
 - **`@vercel/ncc`** — bundles `src/index.ts` + scorer into a single `dist/index.js` that consumers actually load.
@@ -40,6 +40,7 @@ tasks/
   0.1.3/
   0.1.4/
   0.1.5/
+  0.1.6/
 CHANGELOG.md            # consumer-facing release log
 LICENSE                 # MIT
 ```
@@ -70,7 +71,7 @@ npm run lint            # biome check (read-only)
 > **Two kinds of tags, don't confuse them:**
 >
 > - **Precise** (e.g. `v0.1.0`) — immutable. Points at exactly one commit, forever.
-> - **Floating** (e.g. `v0`) — mutable. The number after `v` is the **major version**, not "release N". `v0` always points at the latest 0.x.y release; today that's `v0.1.5`, tomorrow it might be `v0.2.0`. Same way `actions/checkout@v4` works.
+> - **Floating** (e.g. `v0`) — mutable. The number after `v` is the **major version**, not "release N". `v0` always points at the latest 0.x.y release; today that's `v0.1.6`, tomorrow it might be `v0.2.0`. Same way `actions/checkout@v7` works.
 
 Semver tags with a major-version floating tag:
 
@@ -88,13 +89,13 @@ The action must keep working with no network access to the [agent-friendly-code]
 
 ## Vendored scorer (sync rule)
 
-`src/scoring/` is a vendored copy of `lib/scoring/` from the upstream [`agent-friendly-code`](https://github.com/hsnice16/agent-friendly-code) repo. There is no automatic sync — when upstream changes a signal, weight, or `scorer.ts` shape, those changes are copied here by hand and logged under `## [Unreleased]` in `CHANGELOG.md`.
+`src/scoring/` and `src/constants/` are vendored copies of `lib/scoring/` and `lib/constants/` from the upstream [`agent-friendly-code`](https://github.com/hsnice16/agent-friendly-code) repo. There is no automatic sync — when upstream changes a signal, weight, or `scorer.ts` shape, those changes are copied here by hand and logged under `## [Unreleased]` in `CHANGELOG.md`.
 
 Upstream's [`AGENTS.md`](https://github.com/hsnice16/agent-friendly-code/blob/main/AGENTS.md) (under "Sibling repos") owns the propagation rule — agents working over there are instructed to mirror their scorer changes into this repo **and** into `agent-friendly-skill`. If you find drift, the upstream is the source of truth — **except** for the deliberate prunes listed below.
 
 **Local prunes from upstream** (intentional, do not re-add on sync):
 
-- `src/constants/scoring.ts` — only `SCORE_THRESHOLD_MID`, `SCORE_THRESHOLD_GOOD`, and `DEFAULT_SUGGESTION_LIMIT` are kept. Upstream's `LEADERBOARD_PAGE_SIZE`, `LEADERBOARD_PAGE_SIZE_MOBILE`, and `STRENGTHS_GAPS_VISIBLE_LIMIT` are dashboard-UI-only and not used by the action.
+- `src/constants/scoring.ts` — only `SCORE_THRESHOLD_MID`, `SCORE_THRESHOLD_GOOD`, and `DEFAULT_SUGGESTION_LIMIT` are kept. Every other upstream constant sizes website UI (pagination, list limits, search length); nothing in `lib/scoring/` imports them.
 - `src/scoring/weights.ts` — `MODEL_BY_ID` (a `Record<ModelId, ModelProfile>`) is dropped; the action iterates `MODELS` and never indexes by id, and ncc does not tree-shake the eager `Object.fromEntries` call.
 
 When syncing upstream changes, copy the substantive change (new signal, weight tweak, scoring-logic edit) and re-apply these prunes on top.

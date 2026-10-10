@@ -1,15 +1,15 @@
 # agent-friendly-action
 
-GitHub Action that posts a per-PR delta of the [Agent Friendly Code](https://github.com/hsnice16/agent-friendly-code) score — _"this PR drops your Claude Code score by 4.1 points because it removed CI config."_
+GitHub Action that comments on each pull request with how it changes the repo's [Agent Friendly Code](https://agentfriendlycode.com) score — _"this PR drops your Claude Code score by 4.1 points because it removed CI config."_
 
-> **Version**: `v0.1.5` — per-release plans live in [`tasks/`](./tasks/) (one folder per version). Pin `@v0` to follow the latest 0.x release; pin a precise tag (`@v0.1.5`) if you want to opt out of automatic minor/patch updates. Tracking task in the parent project: [`tasks/0.5.0/02-score-diff-on-pr.md`](https://github.com/hsnice16/agent-friendly-code/blob/main/tasks/0.5.0/02-score-diff-on-pr.md).
+> **Version**: `v0.1.6` — per-release plans live in [`tasks/`](./tasks/) (one folder per version). Pin `@v0` to follow the latest 0.x release; pin a precise tag (`@v0.1.6`) if you want to opt out of automatic minor/patch updates. Tracking task in the parent project: [`tasks/0.5.0/02-score-diff-on-pr.md`](https://github.com/hsnice16/agent-friendly-code/blob/main/tasks/0.5.0/02-score-diff-on-pr.md).
 
 ## What it does
 
 On every pull request, the action:
 
 1. Reads the PR head and base refs from the GitHub event payload.
-2. Fetches the base ref locally (no network clone — `actions/checkout` already gave us the head).
+2. Checks out the base commit in a temporary `git worktree`, fetching it from `origin` only when it is not already local (with `fetch-depth: 0` it is).
 3. Scores both trees with the bundled scorer.
 4. Posts (or edits) a single PR comment with the delta + per-signal breakdown.
 
@@ -33,7 +33,7 @@ jobs:
   score-diff:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - uses: hsnice16/agent-friendly-action@v0
