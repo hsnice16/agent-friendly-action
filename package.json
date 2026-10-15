@@ -1,6 +1,6 @@
 {
   "name": "agent-friendly-action",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "private": true,
   "description": "GitHub Action that comments on each pull request with how it changes the repo's Agent Friendly Code score.",
   "license": "MIT",
@@ -26,7 +26,10 @@
     "@types/node": "24.19.2",
     "@vercel/ncc": "0.38.4",
     "lefthook": "2.1.6",
-    "tsx": "4.21.0",
+    "tsx": "4.23.15",
     "typescript": "5.9.3"
+  },
+  "overrides": {
+    "undici": "6.29.1"
   }
 }

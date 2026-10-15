@@ -1,6 +1,7 @@
 import type { ModelScore, RepoScore } from "./scoring/scorer";
 import type { SignalResult } from "./scoring/signals/types";
 
+// Hidden marker the upsert finds the bot's own comment by; changing it orphans every existing comment.
 export const COMMENT_MARKER = "<!-- agent-friendly-action -->";
 
 export function renderDiffComment(base: RepoScore, head: RepoScore): string {
@@ -26,17 +27,17 @@ export function renderDiffComment(base: RepoScore, head: RepoScore): string {
 
   if (changed.length > 0) {
     lines.push("");
-    lines.push("### Signals that changed");
+    lines.push("### Checks that changed");
     lines.push("");
 
     for (const c of changed) {
       const arrow = c.head > c.base ? "↑" : "↓";
 
-      lines.push(`- **${c.label}** ${arrow} ${c.base.toFixed(2)} → ${c.head.toFixed(2)} — ${c.detail}`);
+      lines.push(`- **${c.label}** ${arrow} ${c.base.toFixed(2)} → ${c.head.toFixed(2)} — ${codeSpan(c.detail)}`);
     }
   } else {
     lines.push("");
-    lines.push("_No signals changed between base and head._");
+    lines.push("_No checks changed between base and head._");
   }
 
   lines.push("");
@@ -108,4 +109,16 @@ function formatDelta(n: number): string {
 
   const sign = n > 0 ? "+" : "";
   return `**${sign}${rounded}**`;
+}
+
+// A detail can carry file names from the PR, so it renders as a code span:
+// no Markdown, HTML, autolinks or @-mentions. The fence outgrows any backtick
+// run inside, and newlines would end the list item.
+export function codeSpan(text: string): string {
+  const flat = text.replace(/[\r\n]+/g, " ").trim();
+  if (!flat) return "";
+  const longest = Math.max(0, ...(flat.match(/`+/g) ?? []).map((run) => run.length));
+  const fence = "`".repeat(longest + 1);
+  const pad = flat.startsWith("`") || flat.endsWith("`") ? " " : "";
+  return `${fence}${pad}${flat}${pad}${fence}`;
 }

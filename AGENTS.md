@@ -4,9 +4,7 @@ Instructions for AI coding agents working on `agent-friendly-action`.
 
 ## What this project is
 
-A GitHub Action — published on the GitHub Marketplace — that posts a per-PR delta of the [Agent Friendly Code](https://github.com/hsnice16/agent-friendly-code) score on every pull request. Self-contained: the scorer is bundled into `dist/` so the action keeps working independently of the web app.
-
-Companion to the [agent-friendly-code](https://github.com/hsnice16/agent-friendly-code) web app and to the [agent-friendly-skill](https://github.com/hsnice16/agent-friendly-skill) sibling — both vendor the same scorer, so a change in any one needs to be mirrored to the others. The action is read-only (PR comments only); the web app is the source of truth for score history, the public leaderboard, and the canonical scorer; the skill is the local, in-editor counterpart.
+A GitHub Action (on the Marketplace) that comments on each pull request with how it changes the repo's [Agent Friendly Code](https://agentfriendlycode.com) score. The scorer is vendored from [agent-friendly-code](https://github.com/hsnice16/agent-friendly-code), the source of truth, and bundled into `dist/` so the action never needs the website. [agent-friendly-skill](https://github.com/hsnice16/agent-friendly-skill) vendors the same scorer.
 
 ## Stack
 
@@ -26,21 +24,17 @@ lefthook.yml            # pre-commit jobs (biome, typecheck, test, file-length)
 src/
   index.ts              # entry point — orchestration only
   diff.ts               # pure renderer: RepoScore × RepoScore → markdown (owns COMMENT_MARKER)
-  comment.ts            # Octokit upsert by marker
+  comment.ts            # upsert of the action's own marked comment
   score-tree.ts         # git worktree mgmt + scoreRepo wrapper
   scoring/              # vendored from upstream lib/scoring/ (do not reformat — sync rule below)
   constants/            # vendored from upstream lib/constants/scoring.ts
 dist/                   # bundled output (committed — this is what consumers run)
 tests/
+  comment.test.ts
   diff.test.ts
+  score-tree.test.ts
 tasks/
-  0.1.0/                # version plans — one folder per release. README-per-release, plus per-task files for multi-task releases.
-  0.1.1/                # single-purpose patch releases keep a README only.
-  0.1.2/
-  0.1.3/
-  0.1.4/
-  0.1.5/
-  0.1.6/
+  <version>/            # one folder per release: a README, plus per-task files for multi-task releases
 CHANGELOG.md            # consumer-facing release log
 LICENSE                 # MIT
 ```
@@ -68,28 +62,17 @@ npm run lint            # biome check (read-only)
 
 ## Versioning
 
-> **Two kinds of tags, don't confuse them:**
->
-> - **Precise** (e.g. `v0.1.0`) — immutable. Points at exactly one commit, forever.
-> - **Floating** (e.g. `v0`) — mutable. The number after `v` is the **major version**, not "release N". `v0` always points at the latest 0.x.y release; today that's `v0.1.6`, tomorrow it might be `v0.2.0`. Same way `actions/checkout@v7` works.
+Semver tags plus a floating major tag, like `actions/checkout@v7`. A precise tag (`v0.1.6`) never moves; the floating tag (`v0`, later `v1`) is repointed to the latest release of that major, and an old major's tag stays where it last pointed. Consumers use `@v0`, or a precise tag to opt out of updates.
 
-Semver tags with a major-version floating tag:
-
-- Each release gets a precise tag: `v0.1.0`, `v0.2.0`, …, `v1.0.0`, `v1.1.0`, …
-- The floating tag tracks the latest release within a single major version:
-  - During pre-1.0, `v0` is maintained. `v0.1.0` and `v0.2.0` both float on `v0` — the second release does **not** become `v2`.
-  - Once `v1.0.0` ships, `v1` is maintained alongside (and continues to follow the latest 1.x.y). Repeat for future majors. Old floating tags are not deleted; they just stop moving.
-- Consumers pin the floating tag in their workflow (`@v0` for now). Pinning a precise tag (`@v0.1.0`) is also valid for users who want to opt out of automatic minor/patch updates. Marketplace submission happens via the GitHub Releases UI.
-
-Every release tag must be reflected in [`CHANGELOG.md`](./CHANGELOG.md). Move the relevant bullets out of `## [Unreleased]` into a new dated version section as part of the release commit.
+Every release tag gets a dated `CHANGELOG.md` section (bullets moved out of `## [Unreleased]`); [CONTRIBUTING.md](./CONTRIBUTING.md#release-flow) has the steps, including the Marketplace release.
 
 ## Self-containment rule
 
-The action must keep working with no network access to the [agent-friendly-code](https://github.com/hsnice16/agent-friendly-code) web app. Bundle whatever scoring code is required. The web app is **not** contacted at runtime in v1 — if a future runtime weights endpoint ships (upstream `1.0.0/03`), it must be a strict enhancement: behind a feature toggle, with the bundled defaults still serving when the network is unavailable.
+The action must keep working with no network access to the [agent-friendly-code](https://github.com/hsnice16/agent-friendly-code) web app. Bundle whatever scoring code is required. The web app is **not** contacted at runtime. If a future runtime weights endpoint ships (upstream `1.0.0/03`), it must be a strict enhancement: behind a feature toggle, with the bundled defaults still serving when the network is unavailable.
 
 ## Vendored scorer (sync rule)
 
-`src/scoring/` and `src/constants/` are vendored copies of `lib/scoring/` and `lib/constants/` from the upstream [`agent-friendly-code`](https://github.com/hsnice16/agent-friendly-code) repo. There is no automatic sync — when upstream changes a signal, weight, or `scorer.ts` shape, those changes are copied here by hand and logged under `## [Unreleased]` in `CHANGELOG.md`.
+`src/scoring/` and `src/constants/` are vendored copies of `lib/scoring/` and `lib/constants/scoring.ts` from the upstream [`agent-friendly-code`](https://github.com/hsnice16/agent-friendly-code) repo. There is no automatic sync — when upstream changes a signal, weight, or `scorer.ts` shape, those changes are copied here by hand and logged under `## [Unreleased]` in `CHANGELOG.md`.
 
 Upstream's [`AGENTS.md`](https://github.com/hsnice16/agent-friendly-code/blob/main/AGENTS.md) (under "Sibling repos") owns the propagation rule — agents working over there are instructed to mirror their scorer changes into this repo **and** into `agent-friendly-skill`. If you find drift, the upstream is the source of truth — **except** for the deliberate prunes listed below.
 
@@ -104,6 +87,12 @@ Extracting the scorer to a standalone npm package (`agent-friendly-scorer`) is o
 
 ## Security
 
-The action runs with the workflow's `GITHUB_TOKEN` and reads the consumer's repo contents inside their CI runner — no network egress to third-party services, no token forwarded anywhere. The `agents-badge-token` input is an opt-in **marker only** (the action exits silently when empty); do not treat it as a credential to validate against an upstream service.
+The action runs on PR content, so treat the scored tree as untrusted:
 
-If you spot a vulnerability — e.g. a way to make the action exfiltrate the token, comment on a PR it shouldn't, or run code it shouldn't — email <hsnice16@gmail.com> rather than opening a public issue. Coordinated disclosure preferred.
+- Never execute anything from it. The scorer only reads files, doesn't follow symlinks out of the tree, and caps each read at 1 MiB.
+- Text from the tree (file names in check details) goes into the comment as a code span (`codeSpan` in `src/diff.ts`), never raw Markdown.
+- Only a comment the token's own account posted is edited (`isOwnComment` in `src/comment.ts`); the marker alone can be copied by anyone.
+- `base-ref` is validated and passed to git after `--end-of-options` (`isSafeRef` in `src/score-tree.ts`).
+- The token is used only for the GitHub API and never logged. `agents-badge-token` is an opt-in marker, not a credential.
+
+Report a vulnerability to <hsnice16@gmail.com>, not a public issue.

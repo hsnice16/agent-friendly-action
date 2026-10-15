@@ -2,20 +2,18 @@
 
 GitHub Action that comments on each pull request with how it changes the repo's [Agent Friendly Code](https://agentfriendlycode.com) score — _"this PR drops your Claude Code score by 4.1 points because it removed CI config."_
 
-> **Version**: `v0.1.6` — per-release plans live in [`tasks/`](./tasks/) (one folder per version). Pin `@v0` to follow the latest 0.x release; pin a precise tag (`@v0.1.6`) if you want to opt out of automatic minor/patch updates. Tracking task in the parent project: [`tasks/0.5.0/02-score-diff-on-pr.md`](https://github.com/hsnice16/agent-friendly-code/blob/main/tasks/0.5.0/02-score-diff-on-pr.md).
-
 ## What it does
 
 On every pull request, the action:
 
-1. Reads the PR head and base refs from the GitHub event payload.
-2. Checks out the base commit in a temporary `git worktree`, fetching it from `origin` only when it is not already local (with `fetch-depth: 0` it is).
-3. Scores both trees with the bundled scorer.
-4. Posts (or edits) a single PR comment with the delta + per-signal breakdown.
+1. Scores the PR head (the checked-out tree) and the base commit (in a temporary `git worktree`) with the bundled scorer.
+2. Posts one comment with the overall and per-agent change and the checks that moved, and edits that same comment on later pushes.
 
-It runs entirely **inside your CI** — no third-party server is required. The bundled scorer is the only thing that decides the delta; the [Agent Friendly Code](https://github.com/hsnice16/agent-friendly-code) web app is not contacted at runtime.
+It reads files only — nothing from the PR is executed — and calls no server besides the GitHub API. The [checks](https://agentfriendlycode.com/check) and [per-agent weights](https://agentfriendlycode.com/methodology) are the same as on the website.
 
 ## Install
+
+Walkthrough and FAQ: <https://agentfriendlycode.com/action>.
 
 ```yaml
 # .github/workflows/agent-friendly.yml
@@ -41,38 +39,38 @@ jobs:
           agents-badge-token: ${{ secrets.AGENTS_BADGE_TOKEN }}
 ```
 
-`AGENTS_BADGE_TOKEN` is the **opt-in marker**, not an API credential. Set it in the repo's secrets to enable the comment; leave it unset and the action exits silently.
+`AGENTS_BADGE_TOKEN` is an **opt-in marker**, not a credential: set it to any non-empty value in the repo's secrets to enable the comment. Unset, the action exits silently — which is also what happens on fork PRs, where secrets aren't passed. `fetch-depth: 0` keeps the base commit local; without it the action fetches it from `origin`.
+
+Use the `pull_request` trigger. The action also accepts `pull_request_target`, but that runs with a write token on fork PRs; it is safe only because the action never executes PR code, so don't add steps that do.
 
 ## Inputs
 
-| Input                | Required | Default              | Description                                          |
-| -------------------- | -------- | -------------------- | ---------------------------------------------------- |
-| `agents-badge-token` | yes      | —                    | Opt-in marker. Action no-ops when empty.             |
-| `github-token`       | no       | `${{ github.token }}`| Used to post / edit the PR comment.                  |
-| `base-ref`           | no       | event base           | Override the base ref (advanced — usually unneeded). |
+| Input                | Required | Default               | Description                                                              |
+| -------------------- | -------- | --------------------- | ------------------------------------------------------------------------ |
+| `agents-badge-token` | yes      | —                     | Opt-in marker. The action exits silently when empty.                     |
+| `github-token`       | no       | `${{ github.token }}` | Posts and edits the comment. A GitHub App installation token or a PAT also works. |
+| `base-ref`           | no       | the PR's base commit  | A branch, tag, SHA or revision such as `HEAD~1` to compare against instead. |
 
 ## Why opt-in?
 
-Two reasons:
-
-1. **Templates / starter repos** can ship the workflow file without it firing for forks or unenrolled users — only repos that explicitly set the secret get the comment.
-2. **Future-proofing** — when the upstream web app exposes a runtime weights endpoint (deferred to its `1.0.0/03` benchmark harness), the same env var can be promoted to a real key with no workflow change.
+A template or starter repo can ship this workflow without it commenting on every copy; only repos that set the secret get the comment.
 
 ## Self-contained
 
-The scorer is bundled into `dist/` via `@vercel/ncc`. The action does not call the [Agent Friendly Code](https://github.com/hsnice16/agent-friendly-code) web app at runtime — weights and signal logic ship inside the bundle. If the web app goes offline tomorrow, this action keeps producing PR comments unchanged.
+The scorer is vendored from [`agent-friendly-code`](https://github.com/hsnice16/agent-friendly-code) and bundled into `dist/`, so the action keeps working if the website is down.
 
-## Want this in your editor too?
+## Related
 
-The [`agent-friendly-skill`](https://github.com/hsnice16/agent-friendly-skill) sibling vendors the same scorer for your editor. Profiles the same 9 agents this action does (Claude Code, Cursor, Devin, GPT-5 Codex, Gemini CLI, Kimi CLI, Aider, OpenHands, Pi); installs into any [`vercel-labs/skills`](https://github.com/vercel-labs/skills)-compatible agent. Recommendation is score-driven — the skill picks the highest-scoring profile as the best fit and tells you which model class to switch to; you do the actual switch.
+- [`agent-friendly-code`](https://github.com/hsnice16/agent-friendly-code) — the website and the canonical scorer.
+- [`agent-friendly-skill`](https://github.com/hsnice16/agent-friendly-skill) — the same scorer in your editor; scores the local repo and recommends a model class. Install: `npx skills add hsnice16/agent-friendly-skill#v0`. Details: <https://agentfriendlycode.com/skill>.
 
-```bash
-npx skills add hsnice16/agent-friendly-skill
-```
+## Changelog
+
+[`CHANGELOG.md`](./CHANGELOG.md).
 
 ## Sponsor
 
-If this action is useful to you, consider sponsoring its development: [github.com/sponsors/hsnice16](https://github.com/sponsors/hsnice16).
+[github.com/sponsors/hsnice16](https://github.com/sponsors/hsnice16).
 
 ## License
 

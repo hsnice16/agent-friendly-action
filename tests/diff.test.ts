@@ -1,7 +1,7 @@
 import { strict as assert } from "node:assert";
 import { describe, test } from "node:test";
 
-import { COMMENT_MARKER, renderDiffComment } from "../src/diff";
+import { COMMENT_MARKER, codeSpan, renderDiffComment } from "../src/diff";
 import type { ModelScore, RepoScore } from "../src/scoring/scorer";
 import type { SignalResult } from "../src/scoring/signals/types";
 
@@ -63,11 +63,11 @@ describe("renderDiffComment", () => {
     assert.ok(ciIdx < testsIdx, "expected larger-delta signal (ci) listed before smaller (tests)");
   });
 
-  test("notes 'no signals changed' when both sides match", () => {
+  test("notes 'no checks changed' when both sides match", () => {
     const r = repoScore(50, [model("claude-code", 50, "Claude Code")], [signal("ci", 1), signal("tests", 1)]);
     const out = renderDiffComment(r, r);
 
-    assert.match(out, /No signals changed/);
+    assert.match(out, /No checks changed/);
   });
 
   test("treats a signal missing from base as base=0", () => {
@@ -76,5 +76,29 @@ describe("renderDiffComment", () => {
 
     const out = renderDiffComment(base, head);
     assert.match(out, /\*\*ci\*\* ↑ 0\.00 → 1\.00/);
+  });
+});
+
+describe("signal detail escaping", () => {
+  const changed = (detail: string) =>
+    renderDiffComment(repoScore(0, [], []), repoScore(0, [], [signal("tests", 1, detail)]));
+
+  test("renders a detail as a code span", () => {
+    assert.match(changed("Test files detected (a.test.ts)"), /— `Test files detected \(a\.test\.ts\)`$/m);
+  });
+
+  test("neutralises Markdown, HTML and mentions from file names", () => {
+    const out = changed("Found /<img src=x onerror=alert(1)> [x](https://evil) @team");
+    assert.match(out, /— `Found \/<img src=x onerror=alert\(1\)> \[x\]\(https:\/\/evil\) @team`$/m);
+  });
+
+  test("outgrows backtick runs and pads edge backticks", () => {
+    assert.equal(codeSpan("a`b``c"), "```a`b``c```");
+    assert.equal(codeSpan("`x"), "`` `x ``");
+  });
+
+  test("keeps the list item on one line", () => {
+    assert.equal(codeSpan("a\nb\r\n- c"), "`a b - c`");
+    assert.equal(codeSpan(""), "");
   });
 });

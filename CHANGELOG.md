@@ -8,6 +8,25 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 
 ## [Unreleased]
 
+## [0.1.7] - 2026-10-16
+
+### Changed
+
+- Check details print counts as "14,688 characters" instead of "14688 chars", and say "1 GitHub Actions workflow" / "2 … workflows" instead of "workflow(s)". Check descriptions are reworded in plain language. Scores are unchanged. Vendored from the upstream scorer.
+- The comment's "Signals that changed" section is now "Checks that changed", the name the website uses.
+
+### Fixed
+
+- The Cursor-rules check's detail for a legacy `.cursorrules` file no longer contains backticks, which would print literally now that details render as code spans. Scores are unchanged. Vendored from the upstream scorer.
+- The file a check names as its match (the first test file, `.cursor/rules/*.mdc` or `*.csproj`-style manifest) is now picked by name instead of directory-listing order, so the same commit reports the same file on every machine. Scores are unchanged. Vendored from the upstream scorer.
+
+### Security
+
+- The scorer no longer follows a symlink out of the scored repo, reads only regular files, and reads at most 1 MiB of any file. A tree with `README.md` linked to `/dev/zero` could exhaust memory, and one linked to a file elsewhere on the machine leaked that file's length into the score. An escaping link still counts as one file for the size check; a README over 1 MiB is measured on its first 1 MiB. Scores of ordinary repos are unchanged. Vendored from the upstream scorer.
+- The action now edits only a comment it posted itself. It used to update any PR comment carrying its hidden marker, so anyone could paste the marker into a comment and have the score diff overwrite it. With a PAT, "itself" is the PAT's account. With an installation token (the default `GITHUB_TOKEN`, or a GitHub App's, which comments as `<app-slug>[bot]`) it is any bot account, so App tokens keep updating one comment; a user account's comment is never edited.
+- Signal details in the comment render as code spans. A detail can quote a file name from the PR, which could otherwise inject Markdown, links, images or @-mentions into the bot's comment.
+- `base-ref` values that git could read as an option (a leading `-`, or characters no ref name allows) are refused, and refs are passed to git after `--end-of-options`. Branch names, SHAs and revisions such as `HEAD~1`, `HEAD^2` and `main@{1}` still work.
+
 ## [0.1.6] - 2026-10-10
 
 ### Changed
@@ -70,6 +89,7 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 - LICENSE file (MIT) at the repo root — required for Marketplace publish.
 - `tasks/0.1.0/` version plans documenting the v0.1.0 cut: vendor scorer, action runtime, PR comment, CI + smoke, Marketplace publish.
 
+[0.1.7]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.4...v0.1.5
 [0.1.4]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.3...v0.1.4

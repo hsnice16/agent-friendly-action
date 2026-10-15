@@ -10,14 +10,29 @@ export function scoreCurrentTree(): RepoScore {
   return scoreRepo(process.cwd());
 }
 
+// `base-ref` is a workflow input and may be a branch name or a revision like
+// `HEAD~1`, so a SHA-only check would break it. What must never pass is a
+// leading "-" (git would read it as an option); `--end-of-options` below is the
+// second guard.
+const REVISION = /^(?!-)(?!.*\.\.)(?!.*\/\/)([A-Za-z0-9._/-]+)((?:~\d*|\^\d*|@\{\d+\})*)$/;
+
+export function isSafeRef(ref: string): boolean {
+  const name = REVISION.exec(ref)?.[1];
+  return name !== undefined && !name.endsWith("/") && !name.endsWith(".lock");
+}
+
 export function scoreAtRef(ref: string): RepoScore {
+  if (!isSafeRef(ref)) {
+    throw new Error(`refusing to check out unsafe ref ${JSON.stringify(ref.slice(0, 100))}`);
+  }
+
   const path = mkdtempSync(join(tmpdir(), "agent-friendly-base-"));
 
   try {
     const added = tryWorktreeAdd(path, ref);
 
     if (!added) {
-      const fetched = spawnSync("git", ["fetch", "--no-tags", "--depth=1", "origin", ref], {
+      const fetched = spawnSync("git", ["fetch", "--no-tags", "--depth=1", "--end-of-options", "origin", ref], {
         stdio: "pipe",
       });
 
@@ -38,7 +53,7 @@ export function scoreAtRef(ref: string): RepoScore {
 }
 
 function tryWorktreeAdd(path: string, ref: string): boolean {
-  const result = spawnSync("git", ["worktree", "add", "--detach", path, ref], {
+  const result = spawnSync("git", ["worktree", "add", "--detach", "--end-of-options", path, ref], {
     stdio: "pipe",
   });
 
