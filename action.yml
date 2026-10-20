@@ -1,5 +1,5 @@
 name: Agent-friendly score diff
-description: Comment on each pull request with how it changes your repo's score for AI coding agents.
+description: Check AI agent readiness on every pull request, with a comment on how it changes your score per coding agent.
 author: hsnice16
 
 branding:

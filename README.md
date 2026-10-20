@@ -1,6 +1,6 @@
 # agent-friendly-action
 
-GitHub Action that comments on each pull request with how it changes the repo's [Agent Friendly Code](https://agentfriendlycode.com) score — _"this PR drops your Claude Code score by 4.1 points because it removed CI config."_
+GitHub Action that checks AI agent readiness on every pull request: it comments with how the PR changes the repo's [Agent Friendly Code](https://agentfriendlycode.com) score — _"this PR drops your Claude Code score by 4.1 points because it removed CI config."_
 
 ## What it does
 

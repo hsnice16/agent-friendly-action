@@ -92,6 +92,12 @@ describe("signal detail escaping", () => {
     assert.match(out, /— `Found \/<img src=x onerror=alert\(1\)> \[x\]\(https:\/\/evil\) @team`$/m);
   });
 
+  test("keeps an HTML comment opener or closer inside the span", () => {
+    const out = changed(`--> ${COMMENT_MARKER} <!--`);
+    assert.match(out, /— `--> <!-- agent-friendly-action --> <!--`$/m);
+    assert.equal(out.indexOf(COMMENT_MARKER), 0);
+  });
+
   test("outgrows backtick runs and pads edge backticks", () => {
     assert.equal(codeSpan("a`b``c"), "```a`b``c```");
     assert.equal(codeSpan("`x"), "`` `x ``");

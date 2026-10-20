@@ -8,6 +8,21 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 
 ## [Unreleased]
 
+## [0.1.8] - 2026-10-21
+
+### Changed
+
+- The dev-env check also accepts `docker-compose.yaml`, and the contributing check `.github/CONTRIBUTING.adoc`. Repos whose only such file has that name score higher. Vendored from the upstream scorer.
+- The AGENTS.md / CLAUDE.md check reads the first of AGENTS.md, CLAUDE.md and AGENT.md that has content, so an empty AGENTS.md no longer hides a full CLAUDE.md. Repos with that pair score higher. Vendored from the upstream scorer.
+- Marketplace `description` in `action.yml` reworded: "Check AI agent readiness on every pull request, with a comment on how it changes your score per coding agent."
+
+### Fixed
+
+- The size check's detail adds "+" to the file count only when counting stopped at its 10,000-file cap; a repo with 5,000 to 10,000 files now shows its exact count. Scores are unchanged. Vendored from the upstream scorer.
+- A directory named like a file (`ci.yml` in `.github/workflows`, `x.mdc` in `.cursor/rules`, `package.json`, `tsconfig.json`, `Cargo.toml`) no longer passes the CI, Cursor-rules, dependency-manifest or type-config check. Only repos relying on such a directory score lower. Vendored from the upstream scorer.
+- A chain of symlinks whose `..` steps through another link can no longer make a check read a file outside the repo. Scores of ordinary repos are unchanged. Vendored from the upstream scorer.
+- `base-ref` set to a branch or tag name now works on a shallow checkout; it failed with 'invalid reference' after fetching.
+
 ## [0.1.7] - 2026-10-16
 
 ### Changed

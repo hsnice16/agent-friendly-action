@@ -95,7 +95,7 @@ See [`tasks/0.1.0/05-marketplace-publish.md`](./tasks/0.1.0/05-marketplace-publi
 
 ## Vendored scorer
 
-`src/scoring/` and `src/constants/` are vendored from the upstream [`agent-friendly-code`](https://github.com/hsnice16/agent-friendly-code) repo. There is **no automatic sync**. When upstream changes a signal, weight, or `scorer.ts` shape, copy the change here by hand and log it under `## [Unreleased]` in `CHANGELOG.md`. Upstream's [`AGENTS.md`](https://github.com/hsnice16/agent-friendly-code/blob/main/AGENTS.md) (the "Sibling repos" section) owns the propagation rule.
+See [AGENTS.md → Vendored scorer](./AGENTS.md#vendored-scorer-sync-rule) for the sync rule and the local prunes.
 
 ## Reporting bugs + requesting features
 

@@ -40,7 +40,8 @@ export function scoreAtRef(ref: string): RepoScore {
         throw new Error(`git fetch ${ref} failed: ${stderr(fetched)}`);
       }
 
-      const retried = tryWorktreeAdd(path, ref);
+      // A fetched branch lands in FETCH_HEAD, not under its own name.
+      const retried = tryWorktreeAdd(path, "FETCH_HEAD");
       if (!retried) {
         throw new Error(`git worktree add failed for ${ref} after fetch`);
       }
