@@ -8,6 +8,23 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 
 ## [Unreleased]
 
+### Added
+
+- A seventeenth check, agent skills: at least one `.agents/skills/<name>/SKILL.md`. It counts for Codex, Cursor, Devin, Gemini CLI, Kimi Code CLI, OpenHands and Pi, which load that folder, so their scores drop slightly for repos without one. Vendored from the upstream scorer.
+
+### Changed
+
+- Agent labels follow the products' current names: "GPT-5 Codex" is now "Codex" and "Kimi CLI" is "Kimi Code CLI". Model ids are unchanged. Vendored from the upstream scorer.
+- The AGENTS.md / CLAUDE.md check also finds `.claude/CLAUDE.md` and `.claude/AGENTS.md`, after the root files. Vendored from the upstream scorer.
+- The Cursor-rules check counts `.mdc` files in subfolders of `.cursor/rules/` and in `.cursor/rules/` folders up to three directories down, and gives Devin a small weight, since Devin pulls those files into its Knowledge. Vendored from the upstream scorer.
+- The GEMINI.md check counts an AGENTS.md, CLAUDE.md or AGENT.md imported with an `@AGENTS.md` line toward its length. Vendored from the upstream scorer.
+- The dev-env check accepts `.devin/blueprint.yaml` and `.cursor/environment.json`. Vendored from the upstream scorer.
+- The Aider check gives full credit only when `.aider.conf.yml` sets `test-cmd`, `lint-cmd`, `auto-test` or `read`; other configs score 50%, an empty one 20%. Vendored from the upstream scorer.
+
+### Fixed
+
+- The Aider check no longer passes on `.aider.conf.yaml`, which Aider never loads. Vendored from the upstream scorer.
+
 ## [0.1.8] - 2026-10-21
 
 ### Changed
