@@ -1,6 +1,6 @@
 {
   "name": "agent-friendly-action",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "private": true,
   "description": "GitHub Action that comments on each pull request with how it changes the repo's Agent Friendly Code score.",
   "license": "MIT",

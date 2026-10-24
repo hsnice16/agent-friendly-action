@@ -8,6 +8,8 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 
 ## [Unreleased]
 
+## [0.1.9] - 2026-10-24
+
 ### Added
 
 - A seventeenth check, agent skills: at least one `.agents/skills/<name>/SKILL.md`. It counts for Codex, Cursor, Devin, Gemini CLI, Kimi Code CLI, OpenHands and Pi, which load that folder, so their scores drop slightly for repos without one. Vendored from the upstream scorer.
@@ -19,7 +21,7 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 - The Cursor-rules check counts `.mdc` files in subfolders of `.cursor/rules/` and in `.cursor/rules/` folders up to three directories down, and gives Devin a small weight, since Devin pulls those files into its Knowledge. Vendored from the upstream scorer.
 - The GEMINI.md check counts an AGENTS.md, CLAUDE.md or AGENT.md imported with an `@AGENTS.md` line toward its length. Vendored from the upstream scorer.
 - The dev-env check accepts `.devin/blueprint.yaml` and `.cursor/environment.json`. Vendored from the upstream scorer.
-- The Aider check gives full credit only when `.aider.conf.yml` sets `test-cmd`, `lint-cmd`, `auto-test` or `read`; other configs score 50%, an empty one 20%. Vendored from the upstream scorer.
+- The Aider check gives full credit only when `.aider.conf.yml` sets `test-cmd`, `lint-cmd`, `read` or `auto-test: true`; other configs score 50%, an empty one 20%. Vendored from the upstream scorer.
 
 ### Fixed
 
@@ -121,6 +123,8 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 - LICENSE file (MIT) at the repo root — required for Marketplace publish.
 - `tasks/0.1.0/` version plans documenting the v0.1.0 cut: vendor scorer, action runtime, PR comment, CI + smoke, Marketplace publish.
 
+[0.1.9]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.8...v0.1.9
+[0.1.8]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.6...v0.1.7
 [0.1.6]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.5...v0.1.6
 [0.1.5]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.4...v0.1.5
