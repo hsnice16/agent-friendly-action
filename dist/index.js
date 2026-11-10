@@ -37831,16 +37831,51 @@ const LABEL = "GEMINI.md";
 // Gemini CLI inlines `@file.md` imports. Only these are followed: the live-score
 // path fetches no other file's content, so any other would break parity.
 const IMPORTABLE = ["AGENTS.md", "CLAUDE.md", "AGENT.md"];
-// Gemini CLI skips imports in code blocks, so a fenced block matches first and is kept.
-const IMPORT_OR_FENCE = /^[ \t]*(?:```|~~~)[^\n]*\n[\s\S]*?^[ \t]*(?:```|~~~)[ \t]*\r?$|^[ \t]*@(?:\.\/)?([^\s/]+\.md)[ \t]*\r?$/gim;
+// Gemini CLI skips imports in code blocks. A fence opens on a ``` or ~~~ line
+// and closes on the next bare one; an opener that never closes is ignored.
+// Line by line, not one regex: a lazy fence pattern rescans the rest of the
+// file from every unclosed opener, which a hostile file turns into minutes.
+const FENCE_OPEN = /^[ \t]*(?:```|~~~)/;
+const FENCE_CLOSE = /^[ \t]*(?:```|~~~)[ \t]*\r?$/;
+const IMPORT = /^[ \t]*@(?:\.\/)?([^\s/]+\.md)[ \t]*\r?$/i;
+// Repeated imports could otherwise grow the text without bound.
+const MAX_EXPANDED = 4 * helpers_1.MAX_READ_BYTES;
 function withImports(repo, text) {
-    return text.replace(IMPORT_OR_FENCE, (match, name) => {
-        if (!name || !IMPORTABLE.some((f) => f.toLowerCase() === name.toLowerCase())) {
-            return match;
+    const lines = text.split("\n");
+    // nextClose[i]: the first bare fence line at or after i, so each lookup is O(1).
+    const nextClose = new Array(lines.length + 1).fill(-1);
+    for (let i = lines.length - 1; i >= 0; i--) {
+        nextClose[i] = FENCE_CLOSE.test(lines[i]) ? i : nextClose[i + 1];
+    }
+    const imported = new Map();
+    const out = [];
+    let size = 0;
+    const push = (s) => {
+        if (size <= MAX_EXPANDED)
+            out.push(s);
+        size += s.length + 1;
+    };
+    for (let i = 0; i < lines.length; i++) {
+        const close = i < lines.length - 1 && FENCE_OPEN.test(lines[i]) ? nextClose[i + 1] : -1;
+        if (close >= 0) {
+            for (let j = i; j <= close; j++)
+                push(lines[j]);
+            i = close;
+            continue;
         }
-        const rel = (0, helpers_1.resolveRelative)(repo, name);
-        return rel ? (0, helpers_1.readSafe)((0, node_path_1.join)(repo, rel), repo) : match;
-    });
+        const name = IMPORT.exec(lines[i])?.[1];
+        if (!name || !IMPORTABLE.some((f) => f.toLowerCase() === name.toLowerCase())) {
+            push(lines[i]);
+            continue;
+        }
+        const key = name.toLowerCase();
+        if (!imported.has(key)) {
+            const rel = (0, helpers_1.resolveRelative)(repo, name);
+            imported.set(key, rel ? (0, helpers_1.readSafe)((0, node_path_1.join)(repo, rel), repo) : null);
+        }
+        push(imported.get(key) ?? lines[i]);
+    }
+    return out.join("\n");
 }
 exports.geminiMd = {
     label: LABEL,

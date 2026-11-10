@@ -8,6 +8,10 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 
 ## [Unreleased]
 
+### Fixed
+
+- The GEMINI.md check no longer hangs on a file full of unclosed code fences or repeated `@AGENTS.md` imports; scores are unchanged. Vendored from the upstream scorer.
+
 ## [0.1.9] - 2026-10-24
 
 ### Added
