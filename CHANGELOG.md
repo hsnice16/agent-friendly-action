@@ -8,9 +8,17 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 
 ## [Unreleased]
 
+## [0.1.10] - 2026-11-20
+
 ### Changed
 
-- The linter check accepts C#, F# and Kotlin configs: an `.editorconfig` with `dotnet_`, `csharp_`, `visual_basic_`, `fsharp_` or `ktlint_` keys, `.globalconfig`, `stylecop.json`, `fsharplint.json`, or a `Directory.Build.props` that sets `EnforceCodeStyleInBuild`, `AnalysisLevel` or `AnalysisMode`. An `.editorconfig` with only indentation settings still does not count. Vendored from the upstream scorer.
+- The static checks recognise each language's standard files, so a well set-up repo passes whatever it is written in. Vendored from the upstream scorer. Scores only go up, except that a `setup.cfg` with no linter section no longer counts as a linter config.
+  - Linter: .NET, F# and Kotlin rules in `.editorconfig` (`dotnet_`, `csharp_`, `fsharp_`, `ktlint_` keys), `.globalconfig` and `stylecop.json`, every ESLint, Prettier and Biome config name, oxlint, dprint, Stylelint, XO, Checkstyle wherever a Java build keeps it, Spotless, Error Prone, detekt and ktlint in Gradle or Maven build files, HLint, Fourmolu, ameba, Zig's `addFmt`, `[lints]` in `Cargo.toml`, linter keys in `package.json`, and more.
+  - Type configuration: C and C++, Dart, PHPStan, Psalm, `tsconfig.base.json`, Sorbet, Xcode projects and more typed languages; a CMake or Meson file in a Python package does not count.
+  - Tests: test files beside the code earn full credit; module test folders such as `app/src/test` and `src/commonTest`, .NET and Xcode test projects, and more test-file names count; a `package.json` test script alone earns 70%.
+  - Dependency manifest, linter and type checks also look one folder down (`src/`, `dotnet/`), skipping examples, docs, tests and vendored code.
+  - Dev environment: a language toolchain that installs and builds in one command (`Cargo.toml`, `go.mod`, a .NET solution, `Package.swift` and others) counts as one setup file.
+  - Pre-commit, CI, license and README: more hook frameworks, CI systems, licence file names and README locations.
 
 ### Fixed
 
@@ -132,6 +140,7 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 - LICENSE file (MIT) at the repo root — required for Marketplace publish.
 - `tasks/0.1.0/` version plans documenting the v0.1.0 cut: vendor scorer, action runtime, PR comment, CI + smoke, Marketplace publish.
 
+[0.1.10]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.7...v0.1.8
 [0.1.7]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.6...v0.1.7

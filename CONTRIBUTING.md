@@ -29,7 +29,7 @@ Full runbook: [`tasks/0.1.0/05-marketplace-publish.md`](./tasks/0.1.0/05-marketp
 
 ## Issues
 
-- **Bugs**: use the bug-report template. Include the action version (`@v0.1.9` or `@v0`), your workflow file, and a link to a PR run if possible.
+- **Bugs**: use the bug-report template. Include the action version (`@v0.1.10` or `@v0`), your workflow file, and a link to a PR run if possible.
 - **Features**: open an issue before sending a PR for non-trivial changes.
 
 ## Security
