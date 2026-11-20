@@ -37682,8 +37682,9 @@ const CANDIDATES = [
     "conanfile.txt",
     "conanfile.py",
     "vcpkg.json",
+    "Directory.Packages.props",
 ];
-const GLOB_MANIFESTS = [/\.(csproj|fsproj|vbproj|sln)$/i, /\.cabal$/i, /\.nimble$/i];
+const GLOB_MANIFESTS = [/\.(csproj|fsproj|vbproj|sln|slnx)$/i, /\.cabal$/i, /\.nimble$/i];
 function findGlobManifest(repo) {
     try {
         const entries = (0, node_fs_1.readdirSync)(repo).sort();
