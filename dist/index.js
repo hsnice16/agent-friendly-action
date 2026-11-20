@@ -38257,7 +38257,7 @@ exports.license = {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.linter = void 0;
+exports.linter = exports.IN_FILE = void 0;
 const node_path_1 = __nccwpck_require__(6760);
 const helpers_1 = __nccwpck_require__(2742);
 const CANDIDATES = [
@@ -38307,13 +38307,27 @@ const CANDIDATES = [
     ".clang-format",
     ".clang-tidy",
     ".clj-kondo/config.edn",
+    ".globalconfig",
+    "stylecop.json",
+    "fsharplint.json",
 ];
 const PYPROJECT_RE = /\[tool\.(ruff|black|flake8|pylint|mypy)/;
+// A plain .editorconfig (indent, charset) is tool-neutral and stays a fail; these
+// prefixes are keys only dotnet format / Roslyn, Fantomas or ktlint read.
+const EDITORCONFIG_TOOL_RE = /^[ \t]*(?:dotnet|csharp|visual_basic|fsharp|ktlint)_/m;
+// TreatWarningsAsErrors is left out: it hardens whatever warnings exist but
+// configures no analyzer.
+const BUILD_PROPS_RE = /<EnforceCodeStyleInBuild>\s*true\s*<|<Analysis(?:Level|Mode)>/i;
+exports.IN_FILE = [
+    { file: "pyproject.toml", re: PYPROJECT_RE },
+    { file: ".editorconfig", re: EDITORCONFIG_TOOL_RE },
+    { file: "Directory.Build.props", re: BUILD_PROPS_RE },
+];
 exports.linter = {
     id: "linter",
     label: "Linter / formatter config",
     description: "A linter, so the agent gets style feedback right away instead of guessing.",
-    improveSuggestion: "Configure a linter/formatter (ESLint+Prettier, Biome, Ruff, rustfmt+clippy, golangci-lint) and commit the config.",
+    improveSuggestion: "Configure a linter/formatter (ESLint+Prettier, Biome, Ruff, rustfmt+clippy, golangci-lint, .NET rules in .editorconfig) and commit the config.",
     check: (repo) => {
         const m = (0, helpers_1.firstExisting)(repo, CANDIDATES);
         if (m) {
@@ -38325,15 +38339,17 @@ exports.linter = {
                 label: "Linter / formatter config",
             };
         }
-        const pyproject = (0, helpers_1.resolveRelative)(repo, "pyproject.toml");
-        if (pyproject && PYPROJECT_RE.test((0, helpers_1.readSafe)((0, node_path_1.join)(repo, pyproject), repo))) {
-            return {
-                pass: 1,
-                id: "linter",
-                matchedPath: pyproject,
-                label: "Linter / formatter config",
-                detail: "Configured in pyproject.toml",
-            };
+        for (const { file, re } of exports.IN_FILE) {
+            const rel = (0, helpers_1.resolveRelative)(repo, file);
+            if (rel && re.test((0, helpers_1.readSafe)((0, node_path_1.join)(repo, rel), repo))) {
+                return {
+                    pass: 1,
+                    id: "linter",
+                    matchedPath: rel,
+                    label: "Linter / formatter config",
+                    detail: `Configured in ${rel}`,
+                };
+            }
         }
         return {
             pass: 0,

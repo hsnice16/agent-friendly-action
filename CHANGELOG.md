@@ -8,6 +8,10 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 
 ## [Unreleased]
 
+### Changed
+
+- The linter check accepts C#, F# and Kotlin configs: an `.editorconfig` with `dotnet_`, `csharp_`, `visual_basic_`, `fsharp_` or `ktlint_` keys, `.globalconfig`, `stylecop.json`, `fsharplint.json`, or a `Directory.Build.props` that sets `EnforceCodeStyleInBuild`, `AnalysisLevel` or `AnalysisMode`. An `.editorconfig` with only indentation settings still does not count. Vendored from the upstream scorer.
+
 ### Fixed
 
 - The dependency-manifest check counts a root `.slnx` solution (the .NET 10 default) and `Directory.Packages.props`, so .NET repos laid out that way no longer fail it. Vendored from the upstream scorer.
