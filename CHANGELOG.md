@@ -10,6 +10,7 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 
 ### Fixed
 
+- The dependency-manifest check counts a root `.slnx` solution (the .NET 10 default) and `Directory.Packages.props`, so .NET repos laid out that way no longer fail it. Vendored from the upstream scorer.
 - The GEMINI.md check no longer hangs on a file full of unclosed code fences or repeated `@AGENTS.md` imports; scores are unchanged. Vendored from the upstream scorer.
 
 ## [0.1.9] - 2026-10-24
