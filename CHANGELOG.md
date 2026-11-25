@@ -8,6 +8,18 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 
 ## [Unreleased]
 
+## [0.1.11] - 2026-11-25
+
+### Security
+
+- A hostile `.gitignore`, alone or paired with file names built to match it slowly, can no longer stall scoring: runs of `**/` collapse to one, lines with more than three wildcards (or more than two `*` in one path segment), over 256 characters or past the first 1,000 are skipped, and matching stops consulting `.gitignore` past a fixed amount of work. The file-count walk also stops after 20,000 folders, so a tree of folders holding only dotfiles can't stall it; such a tree scores as very large. Vendored from the upstream scorer. Normal `.gitignore` files score the same.
+
+### Fixed
+
+- A directory named `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.openhands/setup.sh` or `.aider.conf.yml` no longer counts as an empty file (0.2); the check moves on to the next candidate, or scores 0. Vendored from the upstream scorer.
+- A directory named `CONTRIBUTING.md`, `LICENSE` or `.cursorrules` no longer passes as that file. A licence folder (`license/LICENSE.txt`) and a `CONTRIBUTING/README.md` still count. Vendored from the upstream scorer.
+- Reproducible dev env counts each tool once, as documented: the Compose spellings, `flake.nix` / `shell.nix` / `default.nix`, and the two devcontainer paths are each one tool, so two of them alone now score 0.7, not 1. A directory named like an artifact (`Makefile/`) no longer counts, and a `package.json` `scripts` that is not an object no longer counts its characters. Vendored from the upstream scorer.
+
 ## [0.1.10] - 2026-11-20
 
 ### Changed

@@ -52,6 +52,8 @@ describe("scoreAtRef", () => {
   test("scores a branch that exists only on origin", () => {
     const root = mkdtempSync(join(tmpdir(), "afa-test-"));
     const git = (cwd: string, ...args: string[]) => execFileSync("git", args, { cwd, stdio: "pipe" });
+    // A global commit.gpgsign would make the commits prompt for a signing key.
+    const commit = ["-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false", "commit"];
     const cwd = process.cwd();
     // A pre-commit hook exports GIT_INDEX_FILE and friends, which would point
     // these git calls at the outer repo.
@@ -63,9 +65,9 @@ describe("scoreAtRef", () => {
       git(root, "init", "-q", "-b", "main", origin);
       writeFileSync(join(origin, "README.md"), "# base\n");
       git(origin, "add", ".");
-      git(origin, "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "base");
+      git(origin, ...commit, "-qm", "base");
       git(origin, "checkout", "-qb", "feat");
-      git(origin, "-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "--allow-empty", "-m", "head");
+      git(origin, ...commit, "-q", "--allow-empty", "-m", "head");
       git(root, "clone", "-q", "--depth=1", "--branch", "feat", `file://${origin}`, "work");
 
       process.chdir(join(root, "work"));
