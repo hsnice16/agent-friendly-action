@@ -37006,6 +37006,11 @@ async function run() {
         core.warning("could not resolve PR base SHA; exiting.");
         return;
     }
+    // pull_request_target checks out the base branch, which would be scored as the head.
+    if (eventName === "pull_request_target" && (0, score_tree_1.checkedOutSha)() !== pr.head?.sha) {
+        core.warning("pull_request_target: check out the PR head first (see the README); exiting.");
+        return;
+    }
     core.info(`scoring head (${shortSha(pr.head?.sha)}) vs base (${shortSha(baseSha)})`);
     const headScore = (0, score_tree_1.scoreCurrentTree)();
     const baseScore = (0, score_tree_1.scoreAtRef)(baseSha);
@@ -37072,6 +37077,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.scoreCurrentTree = scoreCurrentTree;
+exports.checkedOutSha = checkedOutSha;
 exports.isSafeRef = isSafeRef;
 exports.scoreAtRef = scoreAtRef;
 const node_child_process_1 = __nccwpck_require__(1421);
@@ -37082,6 +37088,10 @@ const core = __importStar(__nccwpck_require__(7484));
 const scorer_1 = __nccwpck_require__(789);
 function scoreCurrentTree() {
     return (0, scorer_1.scoreRepo)(process.cwd());
+}
+function checkedOutSha(cwd = process.cwd()) {
+    const r = (0, node_child_process_1.spawnSync)("git", ["rev-parse", "HEAD"], { cwd, stdio: "pipe" });
+    return r.status === 0 ? r.stdout.toString().trim() : "";
 }
 // `base-ref` is a workflow input and may be a branch name or a revision like
 // `HEAD~1`, so a SHA-only check would break it. What must never pass is a
@@ -37134,7 +37144,7 @@ function cleanupWorktree(path) {
         (0, node_fs_1.rmSync)(path, { recursive: true, force: true });
     }
     catch {
-        // Best-effort cleanup — the runner is ephemeral anyway.
+        // Best effort; a leftover temp dir is harmless.
     }
 }
 function stderr(r) {
@@ -37272,8 +37282,10 @@ exports.agentSkills = {
                 names = (0, node_fs_1.readdirSync)((0, node_path_1.join)(repo, dir)).sort();
             }
             catch { }
+            // One resolver, or each name re-lists the skills folder.
+            const resolve = (0, helpers_1.createResolver)(repo);
             const skills = names
-                .map((n) => (0, helpers_1.resolveRelative)(repo, `${dir}/${n}/SKILL.md`))
+                .map((n) => resolve(`${dir}/${n}/SKILL.md`))
                 .filter((p) => !!p && (0, helpers_1.isFileEntry)(repo, (0, node_path_1.join)(repo, p)));
             if (skills.length > 0) {
                 return {
@@ -37626,7 +37638,7 @@ function mdcFiles(repo, rel, depth, out) {
         const child = `${rel}/${e}`;
         const kind = (0, helpers_1.entryKind)(repo, (0, node_path_1.join)(repo, child));
         if (kind === "dir") {
-            if (depth < SUBFOLDER_DEPTH)
+            if (depth < SUBFOLDER_DEPTH && (0, helpers_1.isRealDir)((0, node_path_1.join)(repo, child)))
                 mdcFiles(repo, child, depth + 1, out);
         }
         else if (e.toLowerCase().endsWith(".mdc") && (0, helpers_1.isFileEntry)(repo, (0, node_path_1.join)(repo, child))) {
@@ -37637,8 +37649,11 @@ function mdcFiles(repo, rel, depth, out) {
 /** Every `.cursor/rules/` folder, the root one first. */
 function rulesDirs(repo) {
     const found = [];
+    // One resolver for the whole scan: a fresh one re-lists every parent per folder,
+    // which is quadratic on a root with thousands of folders.
+    const resolve = (0, helpers_1.createResolver)(repo);
     const visit = (rel, depth) => {
-        const dir = (0, helpers_1.resolveRelative)(repo, rel ? `${rel}/.cursor/rules` : ".cursor/rules");
+        const dir = resolve(rel ? `${rel}/.cursor/rules` : ".cursor/rules");
         if (dir && (0, helpers_1.entryKind)(repo, (0, node_path_1.join)(repo, dir)) === "dir")
             found.push(dir);
         if (depth >= PARENT_DEPTH)
@@ -37647,7 +37662,7 @@ function rulesDirs(repo) {
             if (SKIP.has(e) || e.toLowerCase() === ".cursor")
                 continue;
             const child = rel ? `${rel}/${e}` : e;
-            if ((0, helpers_1.entryKind)(repo, (0, node_path_1.join)(repo, child)) === "dir")
+            if ((0, helpers_1.isRealDir)((0, node_path_1.join)(repo, child)))
                 visit(child, depth + 1);
         }
     };
@@ -38132,6 +38147,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.MAX_READ_BYTES = void 0;
 exports.characters = characters;
 exports.entryKind = entryKind;
+exports.isRealDir = isRealDir;
 exports.createResolver = createResolver;
 exports.resolveRelative = resolveRelative;
 exports.resolveAllRelative = resolveAllRelative;
@@ -38174,6 +38190,15 @@ function entryKind(repo, abs) {
     catch {
         // Dangling, or unreadable.
         return null;
+    }
+}
+// Walks descend only into real folders: `l -> .` at every level multiplies a walk by its fan-out.
+function isRealDir(abs) {
+    try {
+        return (0, node_fs_1.lstatSync)(abs).isDirectory();
+    }
+    catch {
+        return false;
     }
 }
 function indexDir(dir, cache) {
@@ -38329,7 +38354,8 @@ function walkFind(root, match, maxDepth = 3, maxHits = 1) {
                 continue;
             }
             if (kind === "dir") {
-                visit(abs, depth + 1, relNext);
+                if (isRealDir(abs))
+                    visit(abs, depth + 1, relNext);
             }
             else if (match(relNext)) {
                 hits.push(relNext);
@@ -39210,13 +39236,15 @@ exports.size = {
                 if (!kind) {
                     continue;
                 }
+                // A link to a folder counts as the one file git stores.
+                const descend = kind === "dir" && (0, helpers_1.isRealDir)(abs);
                 const rel = (0, node_path_1.relative)(repo, abs).split(node_path_1.sep).join("/");
-                const path = kind === "dir" ? `${rel}/` : rel;
+                const path = descend ? `${rel}/` : rel;
                 work += matchWork(path, lines.length, quadratic);
                 if ((work <= IGNORE_WORK_BUDGET ? ig : base).ignores(path)) {
                     continue;
                 }
-                if (kind === "dir") {
+                if (descend) {
                     visit(abs, depth + 1);
                 }
                 else {

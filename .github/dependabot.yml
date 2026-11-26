@@ -1,0 +1,21 @@
+# A bump that changes the bundle (`@actions/*`, `ignore`, `@vercel/ncc`, `typescript`) fails CI's
+# dist/ drift check until the `npm run build` output is committed.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    # Gives the registry time to pull a compromised release before it reaches the bundle.
+    cooldown:
+      default-days: 7
+    groups:
+      dev:
+        dependency-type: development

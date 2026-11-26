@@ -10,6 +10,11 @@ export function scoreCurrentTree(): RepoScore {
   return scoreRepo(process.cwd());
 }
 
+export function checkedOutSha(cwd = process.cwd()): string {
+  const r = spawnSync("git", ["rev-parse", "HEAD"], { cwd, stdio: "pipe" });
+  return r.status === 0 ? r.stdout.toString().trim() : "";
+}
+
 // `base-ref` is a workflow input and may be a branch name or a revision like
 // `HEAD~1`, so a SHA-only check would break it. What must never pass is a
 // leading "-" (git would read it as an option); `--end-of-options` below is the
@@ -72,7 +77,7 @@ function cleanupWorktree(path: string): void {
   try {
     rmSync(path, { recursive: true, force: true });
   } catch {
-    // Best-effort cleanup — the runner is ephemeral anyway.
+    // Best effort; a leftover temp dir is harmless.
   }
 }
 

@@ -2,23 +2,31 @@
 
 All notable changes to `agent-friendly-action` are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the action follows [Semantic Versioning](https://semver.org/).
 
-This file is the consumer-facing log: it records what changed in each release of the action — including changes to the **vendored scorer** (signals, weights, scoring logic) that come in from the upstream [`agent-friendly-code`](https://github.com/hsnice16/agent-friendly-code) repo. Anything that affects the score a PR receives belongs here.
-
-What does **not** belong here: pure CI / build / lint / test plumbing, dev-only refactors, or doc-only edits that don't change behaviour. Those stay in commit messages and PR descriptions.
+Consumer-facing: anything that changes a PR's score, the comment or the Marketplace listing, including vendored scorer changes from upstream [`agent-friendly-code`](https://github.com/hsnice16/agent-friendly-code). CI, build, test and doc-only changes stay in commits and PRs.
 
 ## [Unreleased]
 
-## [0.1.11] - 2026-11-25
+## [0.1.12] - 2026-11-27
+
+### Fixed
+
+- Under `pull_request_target`, which checks out the base branch, the action no longer compares the base with itself: unless the PR head is checked out, it exits with a warning.
 
 ### Security
 
-- A hostile `.gitignore`, alone or paired with file names built to match it slowly, can no longer stall scoring: runs of `**/` collapse to one, lines with more than three wildcards (or more than two `*` in one path segment), over 256 characters or past the first 1,000 are skipped, and matching stops consulting `.gitignore` past a fixed amount of work. The file-count walk also stops after 20,000 folders, so a tree of folders holding only dotfiles can't stall it; such a tree scores as very large. Vendored from the upstream scorer. Normal `.gitignore` files score the same.
+- Links to folders, or thousands of folders, can no longer stall scoring: the file walks (file count, tests beside the code, Cursor rules, Checkstyle) no longer descend into folder links, the file count counts each link as one file as git does, and the Cursor rules and skills checks list each folder once. Vendored from the upstream scorer. Only a repo with links to folders can score differently.
+
+## [0.1.11] - 2026-11-25
 
 ### Fixed
 
 - A directory named `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.openhands/setup.sh` or `.aider.conf.yml` no longer counts as an empty file (0.2); the check moves on to the next candidate, or scores 0. Vendored from the upstream scorer.
 - A directory named `CONTRIBUTING.md`, `LICENSE` or `.cursorrules` no longer passes as that file. A licence folder (`license/LICENSE.txt`) and a `CONTRIBUTING/README.md` still count. Vendored from the upstream scorer.
 - Reproducible dev env counts each tool once, as documented: the Compose spellings, `flake.nix` / `shell.nix` / `default.nix`, and the two devcontainer paths are each one tool, so two of them alone now score 0.7, not 1. A directory named like an artifact (`Makefile/`) no longer counts, and a `package.json` `scripts` that is not an object no longer counts its characters. Vendored from the upstream scorer.
+
+### Security
+
+- A hostile `.gitignore`, alone or paired with file names built to match it slowly, can no longer stall scoring: runs of `**/` collapse to one, lines with more than three wildcards (or more than two `*` in one path segment), over 256 characters or past the first 1,000 are skipped, and matching stops consulting `.gitignore` past a fixed amount of work. The file-count walk also stops after 20,000 folders, so a tree of folders holding only dotfiles can't stall it; such a tree scores as very large. Vendored from the upstream scorer. Normal `.gitignore` files score the same.
 
 ## [0.1.10] - 2026-11-20
 
@@ -152,6 +160,9 @@ What does **not** belong here: pure CI / build / lint / test plumbing, dev-only 
 - LICENSE file (MIT) at the repo root — required for Marketplace publish.
 - `tasks/0.1.0/` version plans documenting the v0.1.0 cut: vendor scorer, action runtime, PR comment, CI + smoke, Marketplace publish.
 
+[Unreleased]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.12...HEAD
+[0.1.12]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.11...v0.1.12
+[0.1.11]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.9...v0.1.10
 [0.1.9]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.8...v0.1.9
 [0.1.8]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.7...v0.1.8

@@ -15,7 +15,7 @@ _What you thought would happen._
 
 ## Reproduction
 
-- **Action version**: _`hsnice16/agent-friendly-action@v0` or `@v0.1.0`_
+- **Action version**: _`hsnice16/agent-friendly-action@v0` or `@vX.Y.Z`_
 - **Runner OS**: _`ubuntu-latest`_
 - **Repo (if shareable)**: _link_
 - **Workflow run link (if shareable)**: _the failed CI run_

@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, test } from "node:test";
 
-import { isSafeRef, scoreAtRef } from "../src/score-tree";
+import { checkedOutSha, isSafeRef, scoreAtRef } from "../src/score-tree";
 
 describe("isSafeRef", () => {
   test("accepts SHAs and ordinary branch names", () => {
@@ -76,6 +76,20 @@ describe("scoreAtRef", () => {
       process.chdir(cwd);
       Object.assign(process.env, Object.fromEntries(hookEnv));
       rmSync(root, { recursive: true, force: true });
+    }
+  });
+});
+
+describe("checkedOutSha", () => {
+  test("returns HEAD's SHA, or empty outside a repo", () => {
+    const head = execFileSync("git", ["rev-parse", "HEAD"], { stdio: "pipe" }).toString().trim();
+    assert.equal(checkedOutSha(), head);
+
+    const dir = mkdtempSync(join(tmpdir(), "afa-norepo-"));
+    try {
+      assert.equal(checkedOutSha(dir), "");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
     }
   });
 });

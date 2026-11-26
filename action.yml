@@ -15,7 +15,7 @@ inputs:
     required: false
     default: ${{ github.token }}
   base-ref:
-    description: Override the PR base ref. Leave unset to use the event's base.
+    description: Branch, tag, SHA or revision (e.g. `HEAD~1`) to compare against instead of the PR's base commit.
     required: false
 
 runs:

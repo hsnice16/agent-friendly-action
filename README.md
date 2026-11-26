@@ -27,6 +27,11 @@ permissions:
   contents: read
   pull-requests: write
 
+# Two runs at once could each post a comment.
+concurrency:
+  group: agent-friendly-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   score-diff:
     runs-on: ubuntu-latest
@@ -34,14 +39,15 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          persist-credentials: false
       - uses: hsnice16/agent-friendly-action@v0
         with:
           agents-badge-token: ${{ secrets.AGENTS_BADGE_TOKEN }}
 ```
 
-`AGENTS_BADGE_TOKEN` is an **opt-in marker**, not a credential: set it to any non-empty value in the repo's secrets to enable the comment. Unset, the action exits silently — which is also what happens on fork PRs, where secrets aren't passed. `fetch-depth: 0` keeps the base commit local; without it the action fetches it from `origin`.
+`AGENTS_BADGE_TOKEN` is an **opt-in marker**, not a credential: set it to any non-empty value in the repo's secrets to enable the comment. Unset, the action exits silently — which is also what happens on fork PRs, where secrets aren't passed. `fetch-depth: 0` keeps the base commit local; without it the action fetches it from `origin`, which on a private repo needs the default `persist-credentials: true`.
 
-Use the `pull_request` trigger. The action also accepts `pull_request_target`, but that runs with a write token on fork PRs; it is safe only because the action never executes PR code, so don't add steps that do.
+Use the `pull_request` trigger. Under `pull_request_target`, check out the head yourself (`ref: ${{ github.event.pull_request.head.sha }}`); otherwise the action exits with a warning. That trigger also runs on fork PRs with a write token, which is safe only because the action never executes PR code, so add no steps that do.
 
 ## Inputs
 

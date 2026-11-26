@@ -1,6 +1,4 @@
 # https://lefthook.dev/configuration/
-#
-# Activate locally: `npm run prepare-hooks` (alias for `lefthook install`).
 
 pre-commit:
   parallel: true
@@ -19,6 +17,7 @@ pre-commit:
       run: npm test
 
     - name: file-length
-      glob: "src/**/*.ts"
+      # Lefthook's `*` crosses `/`; `src/**/*.ts` would skip files directly in src/.
+      glob: "src/*.ts"
       run: |
         wc -l {staged_files} | awk '$2 != "total" && $1 > 300 { printf "✗ %s: %d lines (cap: 300)\n", $2, $1; bad=1 } END { exit bad+0 }'

@@ -3,7 +3,7 @@ import * as github from "@actions/github";
 
 import { upsertCommentByMarker } from "./comment";
 import { renderDiffComment } from "./diff";
-import { scoreAtRef, scoreCurrentTree } from "./score-tree";
+import { checkedOutSha, scoreAtRef, scoreCurrentTree } from "./score-tree";
 
 async function run(): Promise<void> {
   const optInToken = core.getInput("agents-badge-token");
@@ -27,6 +27,12 @@ async function run(): Promise<void> {
   const baseSha: string = core.getInput("base-ref") || pr.base?.sha || "";
   if (!baseSha) {
     core.warning("could not resolve PR base SHA; exiting.");
+    return;
+  }
+
+  // pull_request_target checks out the base branch, which would be scored as the head.
+  if (eventName === "pull_request_target" && checkedOutSha() !== pr.head?.sha) {
+    core.warning("pull_request_target: check out the PR head first (see the README); exiting.");
     return;
   }
 
