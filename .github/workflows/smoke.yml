@@ -3,10 +3,17 @@ name: Smoke
 on:
   pull_request:
 
+# Two runs at once could each post a comment.
+concurrency:
+  group: smoke-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   self-score:
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    # Fork and Dependabot PRs get a read-only token, so the comment would fail.
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read
       pull-requests: write

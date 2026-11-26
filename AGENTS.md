@@ -4,23 +4,23 @@ Instructions for AI coding agents working on `agent-friendly-action`.
 
 ## What this project is
 
-A GitHub Action (on the Marketplace) that comments on each pull request with how it changes the repo's [Agent Friendly Code](https://agentfriendlycode.com) score. The scorer is vendored from [agent-friendly-code](https://github.com/hsnice16/agent-friendly-code), the source of truth, and bundled into `dist/` so the action never needs the website. [agent-friendly-skill](https://github.com/hsnice16/agent-friendly-skill) vendors the same scorer.
+A GitHub Action that comments on each pull request with how it changes the repo's [Agent Friendly Code](https://agentfriendlycode.com) score. The scorer is vendored from [agent-friendly-code](https://github.com/hsnice16/agent-friendly-code), the source of truth, and bundled into `dist/` so the action never needs the website. [agent-friendly-skill](https://github.com/hsnice16/agent-friendly-skill) vendors the same scorer.
 
 ## Stack
 
 - **Node 24** runtime — `action.yml` declares `runs.using: node24`. Local dev needs Node ≥ 20.9.0 (`engines.node`).
 - **TypeScript** — strict mode.
 - **`@actions/core`, `@actions/github`** — only first-party action utilities.
-- **`@vercel/ncc`** — bundles `src/index.ts` + scorer into a single `dist/index.js` that consumers actually load.
-- **Biome** — formatter + linter. Config at `biome.json` (lineWidth 120, parent-aligned). Vendored `src/scoring/` and `src/constants/` are excluded — upstream owns their style.
-- **Lefthook** — git pre-commit hooks run Biome / `tsc --noEmit` / tests / a 300-line file-length cap on `src/**/*.ts`.
+- **`@vercel/ncc`** — bundles `src/index.ts` + scorer into `dist/index.js`.
+- **Biome** — formatter + linter (`biome.json`).
+- **Lefthook** — pre-commit hooks (`lefthook.yml`).
 
 ## Layout
 
 ```text
 action.yml              # Marketplace listing manifest. Lives at repo root (Marketplace requirement).
 biome.json              # formatter + linter config
-lefthook.yml            # pre-commit jobs (biome, typecheck, test, file-length)
+lefthook.yml            # pre-commit hooks
 src/
   index.ts              # entry point — orchestration only
   diff.ts               # pure renderer: RepoScore × RepoScore → markdown (owns COMMENT_MARKER)
@@ -29,10 +29,8 @@ src/
   scoring/              # vendored from upstream lib/scoring/ (do not reformat — sync rule below)
   constants/            # vendored from upstream lib/constants/scoring.ts
 dist/                   # bundled output (committed — this is what consumers run)
-tests/
-  comment.test.ts
-  diff.test.ts
-  score-tree.test.ts
+tests/                  # *.test.ts per src module
+.github/                # CI and smoke workflows, Dependabot, SECURITY.md, issue/PR templates
 tasks/
   <version>/            # one folder per release: a README, plus per-task files for multi-task releases
 CHANGELOG.md            # consumer-facing release log
@@ -56,9 +54,9 @@ npm run lint            # biome check (read-only)
 ## Conventions
 
 - **Exact-pinned deps** in `package.json` (no `^`, no `latest`), so bundles are reproducible.
-- **File length**: `src/**/*.ts` stays ≤ 300 lines. Enforced by the lefthook `file-length` job.
+- **File length**: `src/**/*.ts` stays ≤ 300 lines (lefthook and CI).
 - **No comments** explaining *what* the code does. Only *why* — the `COMMENT_MARKER` rationale in `src/diff.ts` is the model.
-- **Vendored code is exempt** from this repo's biome config (see `biome.json`'s ignore list). Do not run `npm run format` against `src/scoring/` or `src/constants/`.
+- **Vendored code is exempt** from Biome (`biome.json` excludes `src/scoring/` and `src/constants/`): upstream owns its style, so don't reformat it from an editor either.
 
 ## Versioning
 
@@ -83,16 +81,16 @@ Upstream's [`AGENTS.md` → Sibling repos](https://github.com/hsnice16/agent-fri
 
 When syncing upstream changes, copy the substantive change (new signal, weight tweak, scoring-logic edit) and re-apply these prunes on top.
 
-Upstream's `tasks/1.0.0/03-benchmark-harness.md` plans a standalone scorer package, which would replace vendoring.
+If upstream publishes the scorer as a package, depend on it and delete the vendored copy.
 
 ## Security
 
 The action runs on PR content, so treat the scored tree as untrusted:
 
-- Never execute anything from it. The scorer only reads files, doesn't follow symlinks out of the tree, and caps each read at 1 MiB.
+- Never execute anything from it. The scorer only reads files, doesn't follow symlinks out of the tree or descend into linked folders in its walks, and caps each read at 1 MiB.
 - Text from the tree (file names in check details) goes into the comment as a code span (`codeSpan` in `src/diff.ts`), never raw Markdown.
 - Only a comment the token's own account posted is edited (`isOwnComment` in `src/comment.ts`); the marker alone can be copied by anyone.
 - `base-ref` is validated and passed to git after `--end-of-options` (`isSafeRef` in `src/score-tree.ts`).
 - The token is used only for the GitHub API and never logged. `agents-badge-token` is an opt-in marker, not a credential.
 
-Report a vulnerability to <hsnice16@gmail.com>, not a public issue.
+Report a vulnerability as [`.github/SECURITY.md`](./.github/SECURITY.md) says, not in a public issue.

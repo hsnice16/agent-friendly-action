@@ -22,19 +22,19 @@ Ready to merge when CI is green, a reviewer has approved, no comments are open, 
 
 Full runbook: [`tasks/0.1.0/05-marketplace-publish.md`](./tasks/0.1.0/05-marketplace-publish.md). Short version:
 
-1. Set `version` in `package.json` (and `package-lock.json`) to `X.Y.Z`, and move bullets from `## [Unreleased]` into a new `## [X.Y.Z] - YYYY-MM-DD` section in `CHANGELOG.md`. Commit.
+1. Set `version` in `package.json` (and `package-lock.json`) to `X.Y.Z`. Move bullets from `## [Unreleased]` into a new `## [X.Y.Z] - YYYY-MM-DD` section in `CHANGELOG.md` and update the compare links at its foot. Add `tasks/X.Y.Z/README.md`. Commit.
 2. Tag the precise release: `git tag -a vX.Y.Z -m "vX.Y.Z" && git push origin vX.Y.Z`.
 3. Repoint the floating major tag (`v0` during pre-1.0; `v1` after 1.0.0): `git tag -fa v0 -m "v0 → vX.Y.Z" && git push origin v0 --force`. Force-push is allowed for the **floating** tag only — never for the precise tag.
 4. Open the GitHub Release UI for the tag, mirror the changelog section into the description, tick **"Publish this Action to the GitHub Marketplace"**, pick categories `Code Quality` (primary) + `Continuous Integration` (secondary), submit.
 
 ## Issues
 
-- **Bugs**: use the bug-report template. Include the action version (`@v0.1.11` or `@v0`), your workflow file, and a link to a PR run if possible.
+- **Bugs**: use the bug-report template. Include the action version (`@vX.Y.Z` or `@v0`), your workflow file, and a link to a PR run if possible.
 - **Features**: open an issue before sending a PR for non-trivial changes.
 
 ## Security
 
-Threat model: [AGENTS.md → Security](./AGENTS.md#security). Report vulnerabilities to <hsnice16@gmail.com>, not in a public issue.
+See [`.github/SECURITY.md`](./.github/SECURITY.md).
 
 ## Conduct
 

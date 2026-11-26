@@ -6,7 +6,7 @@ _1–3 bullets. What changed, in consumer-observable terms — not a log of work
 
 ## Motivation
 
-_Why this change. Link to the `tasks/<file>.md` it ships, or the upstream `agent-friendly-code` change being mirrored. If it's a vendored-scorer sync, link the upstream commit/PR._
+_Why this change. Link the `tasks/<version>/` file it ships, or the upstream `agent-friendly-code` change being mirrored. If it's a vendored-scorer sync, link the upstream commit/PR._
 
 ## Changes
 
@@ -30,7 +30,7 @@ _Plus, if applicable: "AGENTS.md updated (stack / layout / conventions / sync ru
 _Confirm one of:_
 
 - _"`npm run build` ran; `dist/` committed."_
-- _"N/A — no `src/` change."_
+- _"N/A — no `src/` or dependency change."_
 
 ## Risks / rollback
 

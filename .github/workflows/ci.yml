@@ -8,9 +8,19 @@ on:
 permissions:
   contents: read
 
+# Explicit bash adds pipefail, so the piped steps fail when their first command does.
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -33,6 +43,10 @@ jobs:
       - name: Tests
         run: npm test
 
+      - name: File length
+        run: |
+          find src -name '*.ts' -exec wc -l {} + | awk '$2 != "total" && $1 > 300 { printf "::error file=%s::%d lines (cap: 300)\n", $2, $1; bad=1 } END { exit bad+0 }'
+
       - name: Bundle
         run: npm run build
 
@@ -44,3 +58,23 @@ jobs:
             git --no-pager diff --stat dist/
             exit 1
           fi
+
+  # `engines.node` promises this floor for development; nothing else runs on it.
+  node-floor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 20.9.0
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Tests
+        run: npm test
