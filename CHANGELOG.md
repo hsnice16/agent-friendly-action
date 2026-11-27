@@ -6,6 +6,10 @@ Consumer-facing: anything that changes a PR's score, the comment or the Marketpl
 
 ## [Unreleased]
 
+### Changed
+
+- Reweighted after a fresh audit of each agent's docs: Cursor `agents_md` 0.8 → 1.0 and Devin `agents_md` 0.6 → 0.9, since both read AGENTS.md with no setting; Kimi Code CLI `size` 0.4 → 0.5, since it no longer splits work across sub-agents unless asked. Vendored from the upstream scorer. Only Cursor, Devin and Kimi scores can move.
+
 ## [0.1.12] - 2026-11-27
 
 ### Fixed
