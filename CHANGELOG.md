@@ -6,6 +6,8 @@ Consumer-facing: anything that changes a PR's score, the comment or the Marketpl
 
 ## [Unreleased]
 
+## [0.1.13] - 2026-11-27
+
 ### Changed
 
 - Reweighted after a fresh audit of each agent's docs: Cursor `agents_md` 0.8 → 1.0 and Devin `agents_md` 0.6 → 0.9, since both read AGENTS.md with no setting; Kimi Code CLI `size` 0.4 → 0.5, since it no longer splits work across sub-agents unless asked. Vendored from the upstream scorer. Only Cursor, Devin and Kimi scores can move.
@@ -164,7 +166,8 @@ Consumer-facing: anything that changes a PR's score, the comment or the Marketpl
 - LICENSE file (MIT) at the repo root — required for Marketplace publish.
 - `tasks/0.1.0/` version plans documenting the v0.1.0 cut: vendor scorer, action runtime, PR comment, CI + smoke, Marketplace publish.
 
-[Unreleased]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.12...HEAD
+[Unreleased]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.13...HEAD
+[0.1.13]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.12...v0.1.13
 [0.1.12]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.11...v0.1.12
 [0.1.11]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.10...v0.1.11
 [0.1.10]: https://github.com/hsnice16/agent-friendly-action/compare/v0.1.9...v0.1.10
