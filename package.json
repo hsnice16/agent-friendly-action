@@ -19,7 +19,7 @@
   "dependencies": {
     "@actions/core": "1.11.1",
     "@actions/github": "6.0.1",
-    "ignore": "7.0.5"
+    "ignore": "7.0.16"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.12",
